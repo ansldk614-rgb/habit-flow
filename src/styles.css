@@ -2181,6 +2181,158 @@ textarea {
   padding: 12px 14px;
 }
 
+.character-layout--growth {
+  grid-template-columns: minmax(260px, 0.92fr) minmax(0, 1.25fr);
+  align-items: start;
+}
+
+.slime-status-card,
+.slime-growth-panel {
+  box-shadow: var(--surface-shadow-soft, 0 14px 34px rgba(0, 0, 0, 0.18));
+}
+
+.slime-status-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.slime-status-card__head > div {
+  display: grid;
+  gap: 5px;
+}
+
+.slime-name {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slime-status-card__head strong {
+  color: var(--color-text);
+  font-size: 1.42rem;
+  line-height: 1.1;
+}
+
+.stage-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.stage-badge--rookie,
+.stage-badge--evolved,
+.stage-badge--master {
+  border-color: color-mix(in srgb, var(--color-accent) 62%, var(--color-border-strong));
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.slime-xp-panel {
+  margin-top: 0;
+}
+
+.slime-xp-panel p,
+.evolution-card p,
+.growth-log-empty {
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+}
+
+.progress-bar--xp {
+  height: 13px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+}
+
+.evolution-card,
+.growth-log-card {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.evolution-card {
+  display: grid;
+  gap: 6px;
+}
+
+.evolution-card span {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.evolution-card strong {
+  color: var(--color-text);
+  font-size: 1.08rem;
+}
+
+.evolution-card--available {
+  border-color: color-mix(in srgb, var(--color-accent) 68%, var(--color-border-strong));
+  background: linear-gradient(135deg, var(--color-accent-soft), var(--color-surface));
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.slime-currency-grid {
+  margin-top: 14px;
+}
+
+.currency-card--low-energy strong {
+  color: var(--color-warning);
+}
+
+.slime-stat-board {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.growth-log-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.growth-log-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-alt);
+}
+
+.growth-log-item strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.growth-log-item span {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.growth-log-item--levelUp,
+.growth-log-item--evolution {
+  border-color: color-mix(in srgb, var(--color-accent) 62%, var(--color-border-strong));
+  background: color-mix(in srgb, var(--color-accent-soft) 72%, var(--color-surface));
+}
+
 @keyframes slime-body-wiggle {
   0% {
     transform: translateY(0) rotate(-1deg) scale(var(--slime-scale, 1), calc(var(--slime-scale, 1) * 1));
@@ -4875,6 +5027,25 @@ button,
   gap: 10px;
 }
 
+.theme-group-list {
+  display: grid;
+  gap: 16px;
+}
+
+.theme-group {
+  display: grid;
+  gap: 8px;
+}
+
+.theme-group h3 {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .theme-card {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
@@ -5010,6 +5181,324 @@ button,
 .settings-status--error {
   border-color: color-mix(in srgb, var(--color-danger) 42%, transparent);
   color: var(--color-danger);
+}
+
+/* Theme variable polish for dark and light palettes */
+:root {
+  --color-accent-text: var(--color-bg);
+  --surface-shadow: 0 18px 42px color-mix(in srgb, var(--color-text) 15%, transparent);
+  --surface-shadow-soft: 0 10px 24px color-mix(in srgb, var(--color-text) 10%, transparent);
+  --surface-inset: inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 72%, transparent);
+  --overlay-scrim: color-mix(in srgb, var(--color-text) 58%, transparent);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 34%),
+    linear-gradient(180deg, var(--color-bg), color-mix(in srgb, var(--color-bg) 88%, var(--color-surface-alt)) 100%);
+}
+
+.hero-panel,
+.panel,
+.mini-panel,
+.dash-panel,
+.habit-modal,
+.week-detail-modal,
+.settings-panel {
+  border-color: var(--color-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 94%, var(--color-surface-alt)), color-mix(in srgb, var(--color-bg) 62%, var(--color-surface))),
+    var(--color-surface);
+  box-shadow: var(--surface-inset), var(--surface-shadow);
+}
+
+.dash-panel__head,
+.stat-panel__head,
+.dense-panel__header,
+.settings-panel__head {
+  border-bottom-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-alt) 58%, transparent);
+}
+
+.control-block,
+.control-grid > div,
+.month-week-card,
+.today-focus-card,
+.calendar-detail-card,
+.home-section-card,
+.habit-card,
+.overview-card,
+.event-card,
+.todo-card,
+.empty-card,
+.theme-card {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-surface) 80%, transparent), var(--surface-shadow-soft);
+}
+
+.control-block--accent,
+.today-focus-card,
+.theme-card--selected {
+  border-color: var(--color-border-strong);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent-soft) 42%, var(--color-surface)), var(--color-surface));
+}
+
+.tab-chip--active,
+.primary-button,
+.modal-save-button,
+.dashboard-add-habit-button,
+.quick-add-button,
+.day-chip--active,
+.habit-grid-cell--done,
+.mini-matrix__cell--done,
+.matrix-cell--done {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+.tab-chip:hover,
+.secondary-button:hover,
+.modal-cancel-button:hover,
+.calendar-nav-button:hover,
+.settings-button:hover,
+.settings-icon-button:hover,
+.theme-card:hover {
+  border-color: var(--color-border-strong);
+  background: color-mix(in srgb, var(--color-accent-soft) 28%, var(--color-surface));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+.period-toggle,
+.daily-habits-table--week,
+.daily-habits-table--head,
+.daily-habits-sticky,
+.daily-habit-name,
+.daily-habits-goal {
+  background: color-mix(in srgb, var(--color-bg) 72%, var(--color-surface));
+}
+
+.period-toggle__button--active,
+.daily-date-head--selected,
+.habit-grid-cell--selected,
+.calendar-cell--selected,
+.month-day-cell--selected {
+  border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-border));
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 62%),
+    color-mix(in srgb, var(--color-accent-soft) 64%, var(--color-surface));
+  color: color-mix(in srgb, var(--color-accent) 72%, var(--color-text));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.dashboard-chart__grid,
+.trend-grid-line {
+  stroke: color-mix(in srgb, var(--color-muted) 18%, transparent);
+}
+
+.dashboard-chart__axis-label {
+  fill: color-mix(in srgb, var(--color-muted) 82%, transparent);
+}
+
+.dashboard-chart__line,
+.trend-line {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 28%, transparent));
+}
+
+.dashboard-chart__point {
+  stroke: var(--color-surface);
+  filter: drop-shadow(0 2px 5px rgba(var(--color-accent-rgb), var(--point-glow, 0.14)));
+}
+
+.dashboard-chart__point--active {
+  stroke: var(--color-text);
+  filter: drop-shadow(0 2px 7px rgba(var(--color-accent-rgb), 0.38));
+}
+
+.dashboard-chart-tooltip {
+  background: color-mix(in srgb, var(--color-surface) 96%, var(--color-bg));
+  border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-border-strong));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 10%, transparent), var(--surface-shadow);
+}
+
+.month-week-card__foot,
+.daily-habits-table,
+.overall-progress-row,
+.top-habit-row,
+.week-task-row {
+  border-color: color-mix(in srgb, var(--color-border) 86%, transparent);
+}
+
+.month-day-cell {
+  border-color: color-mix(in srgb, var(--color-border) 92%, transparent);
+  background:
+    linear-gradient(180deg, rgba(var(--color-accent-rgb), var(--day-alpha, 0.035)), color-mix(in srgb, var(--color-surface) 82%, var(--color-bg))),
+    var(--color-bg);
+}
+
+.month-day-cell:hover,
+.habit-grid-cell:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--color-accent) 54%, var(--color-border-strong));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+.month-day-cell i,
+.mini-bar,
+.row-progress span,
+.progress-bar span {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent-soft) 76%, var(--color-surface)), color-mix(in srgb, var(--color-accent) 88%, var(--color-accent-soft)), var(--color-accent));
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.habit-grid-cell {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 74%, var(--color-surface));
+  color: var(--color-accent-text);
+}
+
+.habit-grid-cell:disabled {
+  opacity: 0.38;
+}
+
+.habit-grid-cell--scheduled {
+  background: rgba(var(--color-accent-rgb), var(--cell-alpha, 0.08));
+  border-color: color-mix(in srgb, var(--color-accent) 20%, var(--color-border));
+}
+
+.habit-grid-cell--today,
+.month-day-cell--today,
+.calendar-cell--today,
+.daily-date-head--today,
+.week-day-card--today {
+  outline-color: color-mix(in srgb, var(--color-accent) 76%, var(--color-border-strong));
+  border-color: color-mix(in srgb, var(--color-accent) 46%, var(--color-border-strong));
+}
+
+.habit-grid-cell--selected.habit-grid-cell--done {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-surface) 92%, transparent), 0 8px 18px color-mix(in srgb, var(--color-accent) 24%, transparent);
+}
+
+.monthly-donut {
+  box-shadow:
+    0 10px 28px color-mix(in srgb, var(--color-accent) 14%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--color-border-strong) 74%, transparent);
+}
+
+.monthly-donut > div,
+.week-day-ring div,
+.radial-gauge-inner,
+.day-ring__inner {
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border), 0 3px 10px color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.monthly-donut-meta span,
+.stat-tile,
+.today-focus-item {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-alt) 64%, var(--color-surface));
+}
+
+.progress-bar {
+  border: 1px solid color-mix(in srgb, var(--color-border) 86%, transparent);
+  background: color-mix(in srgb, var(--color-accent-soft) 42%, var(--color-surface));
+}
+
+.modal-overlay,
+.settings-overlay {
+  background: var(--overlay-scrim);
+}
+
+.habit-modal,
+.week-detail-modal {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 88%, var(--color-bg)), var(--color-bg));
+}
+
+.modal-field input,
+.modal-field select,
+.modal-toggle,
+.memo-input,
+.field input,
+.field textarea,
+.field select,
+.compact-field input,
+.quick-field input,
+.bulk-input {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-alt) 70%, var(--color-surface));
+  color: var(--color-text);
+}
+
+.theme-card--selected {
+  border-color: var(--color-accent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 24%, transparent),
+    0 8px 24px color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+.theme-card__check {
+  background: var(--color-surface);
+}
+
+.theme-card--selected .theme-card__check {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.theme-swatches i {
+  border-color: color-mix(in srgb, var(--color-border-strong) 78%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 72%, transparent);
+}
+
+.calendar-cell {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 78%, var(--color-bg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 72%, transparent);
+}
+
+.calendar-cell:hover {
+  border-color: var(--color-border-strong);
+  background: color-mix(in srgb, var(--color-surface-alt) 62%, var(--color-surface));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.calendar-cell--today {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent-soft) 44%, var(--color-surface)), color-mix(in srgb, var(--color-surface) 82%, var(--color-bg)));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    0 8px 20px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.calendar-cell--strong-progress {
+  background:
+    radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 62%),
+    color-mix(in srgb, var(--color-surface-alt) 58%, var(--color-surface));
+}
+
+.calendar-cell--selected {
+  border-color: color-mix(in srgb, var(--color-accent) 58%, var(--color-border-strong));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 20%, transparent),
+    0 8px 18px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.field--inline {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-alt) 68%, var(--color-surface));
+  color: var(--color-text);
+}
+
+.field--inline:hover {
+  border-color: var(--color-border-strong);
+  background: color-mix(in srgb, var(--color-accent-soft) 28%, var(--color-surface));
+}
+
+.field--inline input[type='checkbox'] {
+  accent-color: var(--color-accent);
 }
 
 @keyframes settings-slide-in {

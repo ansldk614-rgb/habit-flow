@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS, STORAGE_KEY, STORAGE_VERSION } from '../constants/hab
 import { migrateHabit, normalizeSavedCompletions } from '../utils/habitUtils'
 import { normalizeEvents } from '../utils/eventUtils'
 import { normalizeTodos } from '../utils/todoUtils'
+import { createDefaultSlimeProfile, normalizeSlimeProfile } from '../utils/rpgUtils'
 
 export const fallbackState = {
   version: STORAGE_VERSION,
@@ -10,6 +11,8 @@ export const fallbackState = {
   completions: {},
   events: [],
   todos: [],
+  companion: createDefaultSlimeProfile(),
+  rewardedCompletions: {},
   settings: DEFAULT_SETTINGS,
 }
 
@@ -19,6 +22,13 @@ function ensureArray(value) {
 
 function ensureObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+}
+
+function normalizeRewardedCompletions(value) {
+  return Object.fromEntries(
+    Object.entries(ensureObject(value))
+      .filter(([key, rewarded]) => typeof key === 'string' && rewarded === true),
+  )
 }
 
 export function migrateStoredState(parsed) {
@@ -32,6 +42,8 @@ export function migrateStoredState(parsed) {
     completions: normalizeSavedCompletions(ensureObject(source.completions), habitsById),
     events: normalizeEvents(source.events),
     todos: normalizeTodos(source.todos),
+    companion: normalizeSlimeProfile(source.companion),
+    rewardedCompletions: normalizeRewardedCompletions(source.rewardedCompletions),
     settings: {
       ...DEFAULT_SETTINGS,
       ...ensureObject(source.settings),

@@ -19,11 +19,12 @@ import {
   calculateOverallWeeklyRate,
   createId,
   getHabitLog,
+  getHabitMetrics,
   isHabitScheduledForDate,
   safeNumber,
 } from './utils/habitUtils'
 import { countEventsByDate, createDefaultEvent, getTodayEvents, normalizeEvent } from './utils/eventUtils'
-import { calculateRpgProfile } from './utils/rpgUtils'
+import { applyHabitReward, calculateRpgProfile } from './utils/rpgUtils'
 import { countTodosByDate, createDefaultTodo, getTodayTodos, normalizeTodo } from './utils/todoUtils'
 
 const PERIOD_MODE_STORAGE_KEY = 'habit-flow-period-mode'
@@ -57,7 +58,7 @@ function createInitialHabitForm() {
 }
 
 function App() {
-  const [{ version, habits, completions, events, todos, settings }, setState] = useLocalStorage()
+  const [{ version, habits, completions, events, todos, companion, rewardedCompletions, settings }, setState] = useLocalStorage()
   const [activeTab, setActiveTab] = useState('home')
   const [periodMode, setPeriodMode] = useState(getStoredPeriodMode)
   const [selectedThemeId, setSelectedThemeId] = useState(getStoredThemeId)
@@ -83,7 +84,7 @@ function App() {
   const todayRate = calculateDayRate(habits, completions, todayKey)
   const weeklyRate = calculateOverallWeeklyRate(habits, completions, today)
   const matrixDates = enumeratePastDates(35, today).reverse()
-  const rpgProfile = calculateRpgProfile(habits, completions, todayKey, weeklyRate)
+  const rpgProfile = calculateRpgProfile(habits, completions, todayKey, weeklyRate, companion)
   const eventCountsByDate = countEventsByDate(events)
   const todoCountsByDate = countTodosByDate(todos)
   const todayEvents = getTodayEvents(events, todayKey)
@@ -279,18 +280,32 @@ function App() {
   function updateHabitLog(habit, dateKey, patch) {
     setState((current) => {
       const currentLog = getHabitLog(current.completions, dateKey, habit)
+      const nextLog = {
+        ...currentLog,
+        ...patch,
+      }
+      const wasDone = getHabitMetrics(habit, currentLog).progressPercent >= 100
+      const isDone = getHabitMetrics(habit, nextLog).progressPercent >= 100
+      const rewardKey = `${habit.id}:${dateKey}`
+      const hasRewarded = current.rewardedCompletions?.[rewardKey] === true
+      const shouldReward = !wasDone && isDone && !hasRewarded
+
       return {
         ...current,
         completions: {
           ...current.completions,
           [dateKey]: {
             ...(current.completions[dateKey] ?? {}),
-            [habit.id]: {
-              ...currentLog,
-              ...patch,
-            },
+            [habit.id]: nextLog,
           },
         },
+        companion: shouldReward ? applyHabitReward(current.companion, habit) : current.companion,
+        rewardedCompletions: shouldReward
+          ? {
+              ...(current.rewardedCompletions ?? {}),
+              [rewardKey]: true,
+            }
+          : current.rewardedCompletions,
       }
     })
   }
@@ -542,7 +557,7 @@ function App() {
         <SettingsPanel
           selectedThemeId={selectedTheme.id}
           periodMode={periodMode}
-          appData={{ version, habits, completions, events, todos, settings }}
+          appData={{ version, habits, completions, events, todos, companion, rewardedCompletions, settings }}
           onSelectTheme={selectTheme}
           onImportData={importAppData}
           onResetData={resetAppData}

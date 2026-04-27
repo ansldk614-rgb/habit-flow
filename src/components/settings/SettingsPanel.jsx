@@ -4,6 +4,7 @@ import { THEMES } from '../../constants/themeConstants'
 
 const BACKUP_VERSION = 1
 const PERIOD_MODE_STORAGE_KEY = 'habit-flow-period-mode'
+const LIGHT_THEME_IDS = new Set(['softMintDay', 'warmPaperPeach'])
 
 function getBackupFileName() {
   const dateKey = new Date().toISOString().slice(0, 10)
@@ -34,6 +35,31 @@ function validateBackup(value) {
   return ''
 }
 
+function ThemeCard({ theme, isSelected, onSelectTheme }) {
+  return (
+    <button
+      type="button"
+      className={`theme-card ${isSelected ? 'theme-card--selected' : ''}`}
+      onClick={() => onSelectTheme(theme)}
+      aria-pressed={isSelected}
+    >
+      <span className="theme-card__check" aria-hidden="true">
+        {isSelected ? <Check size={15} /> : null}
+      </span>
+      <span className="theme-card__body">
+        <strong>{theme.name}</strong>
+        <small>{theme.description}</small>
+        <span className="theme-swatches" aria-hidden="true">
+          <i style={{ background: theme.colors.bg }} />
+          <i style={{ background: theme.colors.surface }} />
+          <i style={{ background: theme.colors.accent }} />
+          <i style={{ background: theme.colors.danger }} />
+        </span>
+      </span>
+    </button>
+  )
+}
+
 export default function SettingsPanel({
   selectedThemeId,
   periodMode = 'recent',
@@ -46,6 +72,12 @@ export default function SettingsPanel({
   const fileInputRef = useRef(null)
   const [dataMessage, setDataMessage] = useState('')
   const [dataError, setDataError] = useState('')
+  const darkThemes = THEMES.filter((theme) => !LIGHT_THEME_IDS.has(theme.id))
+  const lightThemes = THEMES.filter((theme) => LIGHT_THEME_IDS.has(theme.id))
+  const themeGroups = [
+    { title: 'Dark Themes', themes: darkThemes },
+    { title: 'Light Themes', themes: lightThemes },
+  ].filter((group) => group.themes.length > 0)
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -168,34 +200,22 @@ export default function SettingsPanel({
             <strong>Theme</strong>
           </div>
 
-          <div className="theme-card-list">
-            {THEMES.map((theme) => {
-              const isSelected = selectedThemeId === theme.id
-
-              return (
-                <button
-                  key={theme.id}
-                  type="button"
-                  className={`theme-card ${isSelected ? 'theme-card--selected' : ''}`}
-                  onClick={() => onSelectTheme(theme)}
-                  aria-pressed={isSelected}
-                >
-                  <span className="theme-card__check" aria-hidden="true">
-                    {isSelected ? <Check size={15} /> : null}
-                  </span>
-                  <span className="theme-card__body">
-                    <strong>{theme.name}</strong>
-                    <small>{theme.description}</small>
-                    <span className="theme-swatches" aria-hidden="true">
-                      <i style={{ background: theme.colors.bg }} />
-                      <i style={{ background: theme.colors.surface }} />
-                      <i style={{ background: theme.colors.accent }} />
-                      <i style={{ background: theme.colors.danger }} />
-                    </span>
-                  </span>
-                </button>
-              )
-            })}
+          <div className="theme-group-list">
+            {themeGroups.map((group) => (
+              <div className="theme-group" key={group.title}>
+                <h3>{group.title}</h3>
+                <div className="theme-card-list">
+                  {group.themes.map((theme) => (
+                    <ThemeCard
+                      key={theme.id}
+                      theme={theme}
+                      isSelected={selectedThemeId === theme.id}
+                      onSelectTheme={onSelectTheme}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
