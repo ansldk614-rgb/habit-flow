@@ -2669,17 +2669,25 @@ textarea {
 
 .daily-habits-table {
   display: grid;
-  grid-template-columns: 156px 54px repeat(31, 24px);
   align-items: center;
-  min-width: 954px;
+  min-width: max-content;
   border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.daily-habits-table--week {
+  min-height: 28px;
+  color: #6d766b;
+  background: #070907;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .daily-habits-table--head {
   position: sticky;
   top: 0;
-  z-index: 1;
-  min-height: 34px;
+  z-index: 3;
+  min-height: 44px;
   color: #899385;
   background: #070907;
   font-size: 0.64rem;
@@ -2687,35 +2695,142 @@ textarea {
   text-transform: uppercase;
 }
 
-.daily-habits-table strong {
+.daily-habits-table--row {
+  min-height: 34px;
+}
+
+.daily-habits-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #070907;
+  box-shadow: 1px 0 0 rgba(134, 255, 93, 0.12);
+}
+
+.daily-habits-sticky--week {
+  grid-column: span 1;
+}
+
+.daily-habits-goal,
+.daily-habits-goal-head {
+  display: grid;
+  place-items: center;
+  position: sticky;
+  left: 220px;
+  z-index: 2;
+  min-height: 30px;
+  border: 0;
+  border-radius: 0;
+  background: #070907;
+  color: #75ff62;
+  font-size: 0.78rem;
+  font-weight: 900;
+  box-shadow: 1px 0 0 rgba(134, 255, 93, 0.1);
+}
+
+.daily-habits-goal:hover {
+  color: #ffffff;
+}
+
+.daily-habits-goal--head {
+  color: #899385;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+}
+
+.daily-week-label {
+  display: grid;
+  place-items: center;
+  min-height: 28px;
+  border-left: 2px solid rgba(134, 255, 93, 0.28);
+  color: #86ff5d;
+  letter-spacing: 0.04em;
+}
+
+.daily-habit-name {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   min-width: 0;
+  width: 100%;
+  min-height: 34px;
+  border: 0;
+  border-radius: 0;
+  padding: 5px 8px 5px 4px;
   overflow: hidden;
+  text-align: left;
   color: #ffffff;
   font-size: 0.8rem;
+  background: #070907;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.daily-habits-table b {
-  color: #75ff62;
-  font-size: 0.78rem;
+.daily-habit-name:hover {
+  color: #86ff5d;
+}
+
+.daily-habit-name__emoji {
+  flex: 0 0 auto;
+}
+
+.daily-habit-name__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .daily-habits-table > span,
-.daily-habits-table > strong,
+.daily-habits-table > button,
 .daily-habits-table > b {
   min-height: 30px;
   padding: 5px 4px;
 }
 
+.daily-date-head {
+  display: grid;
+  place-items: center;
+  gap: 1px;
+  min-width: 28px;
+  min-height: 44px;
+  border: 0;
+  border-left: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #dce7d9;
+  padding: 3px 0;
+}
+
+.daily-date-head strong {
+  color: inherit;
+  font-size: 0.68rem;
+}
+
+.daily-date-head span {
+  color: #778173;
+  font-size: 0.54rem;
+}
+
+.daily-date-head--today {
+  outline: 1px solid rgba(134, 255, 93, 0.58);
+  outline-offset: -2px;
+  color: #86ff5d;
+}
+
+.daily-date-head--selected {
+  background: rgba(134, 255, 93, 0.16);
+}
+
+.daily-date-head--week-start,
+.habit-grid-cell--week-start {
+  border-left-color: rgba(134, 255, 93, 0.42);
+}
+
 .habit-grid-cell {
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   justify-self: center;
   border: 1px solid rgba(134, 255, 93, 0.05);
   border-radius: 2px;
@@ -2723,6 +2838,20 @@ textarea {
   color: #061005;
   font-size: 0.64rem;
   font-weight: 900;
+  min-height: 22px;
+  padding: 0;
+  transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.habit-grid-cell:not(:disabled):hover {
+  border-color: rgba(134, 255, 93, 0.54);
+  background: rgba(134, 255, 93, 0.2);
+  transform: translateY(-1px);
+}
+
+.habit-grid-cell:disabled {
+  cursor: default;
+  opacity: 0.52;
 }
 
 .habit-grid-cell--scheduled {
@@ -2733,6 +2862,19 @@ textarea {
 .habit-grid-cell--done {
   background: #86ff5d;
   box-shadow: 0 0 9px rgba(134, 255, 93, 0.34);
+}
+
+.habit-grid-cell--today {
+  outline: 1px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 1px;
+}
+
+.habit-grid-cell--selected {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.habit-grid-cell--selected.habit-grid-cell--done {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.24), 0 0 12px rgba(134, 255, 93, 0.44);
 }
 
 .monthly-donut-wrap {
@@ -2848,6 +2990,11 @@ textarea {
   font-size: 0.82rem;
 }
 
+.dashboard-empty--wide {
+  min-width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
 @media (max-width: 1120px) {
   .monthly-dashboard {
     grid-template-columns: minmax(0, 1fr);
@@ -2879,7 +3026,16 @@ textarea {
   }
 
   .daily-habits-table {
-    grid-template-columns: 138px 48px repeat(31, 22px);
-    min-width: 868px;
+    min-width: max-content;
+  }
+
+  .daily-habit-name {
+    font-size: 0.74rem;
+  }
+
+  .habit-grid-cell {
+    width: 20px;
+    height: 20px;
+    min-height: 20px;
   }
 }

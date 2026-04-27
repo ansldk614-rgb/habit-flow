@@ -237,6 +237,13 @@ function App() {
     })
   }
 
+  function toggleDashboardHabitDate(habit, dateKey) {
+    const currentLog = getHabitLog(completions, dateKey, habit)
+    const nextProgress = safeNumber(currentLog.progressPercent) >= 100 ? 0 : 100
+    updateHabitLog(habit, dateKey, { progressPercent: nextProgress })
+    setSelectedDateKey(dateKey)
+  }
+
   function deleteHabit(habitId) {
     setState((current) => {
       const nextCompletions = Object.fromEntries(
@@ -347,7 +354,7 @@ function App() {
       </section>
 
       {activeTab === 'home' && (
-        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} />
+        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} />
       )}
 
       {activeTab === 'calendar' && (

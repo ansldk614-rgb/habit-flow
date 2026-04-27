@@ -22,6 +22,10 @@ export default function HomePage({
   today = new Date(),
   todayEvents = [],
   todayTodos = [],
+  selectedDateKey,
+  onSelectDate,
+  onToggleHabitDate,
+  onEditHabit,
 }) {
   const year = today.getFullYear()
   const month = today.getMonth()
@@ -56,7 +60,17 @@ export default function HomePage({
         <>
           <DailyCompletionChart chartData={chartData} />
           <MonthlyOverviewGrid weeks={monthWeeks} habits={habits} completions={completions} />
-          <DailyHabitsGrid habits={habits} completions={completions} year={year} month={month} />
+          <DailyHabitsGrid
+            habits={habits}
+            completions={completions}
+            year={year}
+            month={month}
+            todayKey={todayKey}
+            selectedDateKey={selectedDateKey}
+            onSelectDate={onSelectDate}
+            onToggleHabitDate={onToggleHabitDate}
+            onEditHabit={onEditHabit}
+          />
         </>
       )}
       rightPanel={<RightStatsPanel monthlyProgress={monthlyProgress} topHabits={topHabits} overallRows={overallRows} />}
