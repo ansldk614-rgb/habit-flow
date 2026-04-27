@@ -5,7 +5,7 @@ import { applyTheme, getStoredThemeId, getThemeById, saveThemeId } from './const
 import HabitModal from './components/modals/HabitModal'
 import WeekDetailModal from './components/modals/WeekDetailModal'
 import SettingsPanel from './components/settings/SettingsPanel'
-import { useLocalStorage } from './hooks/useLocalStorage'
+import { fallbackState, migrateStoredState, useLocalStorage } from './hooks/useLocalStorage'
 import CalendarPage from './pages/CalendarPage'
 import CompanionPage from './pages/CompanionPage'
 import HabitsPage from './pages/HabitsPage'
@@ -26,6 +26,18 @@ import { countEventsByDate, createDefaultEvent, getTodayEvents, normalizeEvent }
 import { calculateRpgProfile } from './utils/rpgUtils'
 import { countTodosByDate, createDefaultTodo, getTodayTodos, normalizeTodo } from './utils/todoUtils'
 
+const PERIOD_MODE_STORAGE_KEY = 'habit-flow-period-mode'
+const PERIOD_MODES = new Set(['recent', 'month'])
+
+function getStoredPeriodMode() {
+  if (typeof window === 'undefined') {
+    return 'recent'
+  }
+
+  const savedMode = window.localStorage.getItem(PERIOD_MODE_STORAGE_KEY)
+  return PERIOD_MODES.has(savedMode) ? savedMode : 'recent'
+}
+
 function getQuickHabitInitialState() {
   return Object.fromEntries(QUICK_HABITS.map((habit) => [habit.id, { ...habit.defaults }]))
 }
@@ -45,8 +57,9 @@ function createInitialHabitForm() {
 }
 
 function App() {
-  const [{ habits, completions, events, todos }, setState] = useLocalStorage()
+  const [{ version, habits, completions, events, todos, settings }, setState] = useLocalStorage()
   const [activeTab, setActiveTab] = useState('home')
+  const [periodMode, setPeriodMode] = useState(getStoredPeriodMode)
   const [selectedThemeId, setSelectedThemeId] = useState(getStoredThemeId)
   const [habitForm, setHabitForm] = useState(createInitialHabitForm)
   const [habitErrors, setHabitErrors] = useState({})
@@ -81,11 +94,36 @@ function App() {
     applyTheme(selectedTheme)
   }, [selectedTheme])
 
+  useEffect(() => {
+    window.localStorage.setItem(PERIOD_MODE_STORAGE_KEY, PERIOD_MODES.has(periodMode) ? periodMode : 'recent')
+  }, [periodMode])
+
   function selectTheme(theme) {
     const nextTheme = getThemeById(theme?.id)
     setSelectedThemeId(nextTheme.id)
     applyTheme(nextTheme)
     saveThemeId(nextTheme.id)
+  }
+
+  function importAppData(backup) {
+    const nextTheme = getThemeById(backup?.theme)
+    const nextPeriodMode = PERIOD_MODES.has(backup?.periodMode) ? backup.periodMode : 'recent'
+
+    setState(migrateStoredState(backup?.data))
+    setSelectedThemeId(nextTheme.id)
+    applyTheme(nextTheme)
+    saveThemeId(nextTheme.id)
+    setPeriodMode(nextPeriodMode)
+  }
+
+  function resetAppData() {
+    const defaultTheme = getThemeById()
+
+    setState(fallbackState)
+    setSelectedThemeId(defaultTheme.id)
+    applyTheme(defaultTheme)
+    saveThemeId(defaultTheme.id)
+    setPeriodMode('recent')
   }
 
   function toggleDay(day) {
@@ -459,7 +497,7 @@ function App() {
       </section>
 
       {activeTab === 'home' && (
-        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
+        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
       )}
 
       {activeTab === 'calendar' && (
@@ -495,7 +533,6 @@ function App() {
           habits={habits}
           completions={completions}
           todayKey={todayKey}
-          activeMonth={{ year: today.getFullYear(), month: today.getMonth() }}
           onClose={closeWeekDetailModal}
           onToggleHabitDate={toggleDashboardHabitDate}
         />
@@ -504,7 +541,11 @@ function App() {
       {isSettingsOpen && (
         <SettingsPanel
           selectedThemeId={selectedTheme.id}
+          periodMode={periodMode}
+          appData={{ version, habits, completions, events, todos, settings }}
           onSelectTheme={selectTheme}
+          onImportData={importAppData}
+          onResetData={resetAppData}
           onClose={() => setIsSettingsOpen(false)}
         />
       )}

@@ -4,7 +4,7 @@ import { migrateHabit, normalizeSavedCompletions } from '../utils/habitUtils'
 import { normalizeEvents } from '../utils/eventUtils'
 import { normalizeTodos } from '../utils/todoUtils'
 
-const fallbackState = {
+export const fallbackState = {
   version: STORAGE_VERSION,
   habits: [],
   completions: {},
@@ -21,7 +21,7 @@ function ensureObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
 }
 
-function migrateStoredState(parsed) {
+export function migrateStoredState(parsed) {
   const source = ensureObject(parsed)
   const habits = ensureArray(source.habits).map(migrateHabit)
   const habitsById = Object.fromEntries(habits.map((habit) => [habit.id, habit]))

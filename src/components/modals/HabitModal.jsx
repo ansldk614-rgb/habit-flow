@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { HABIT_MODAL_PRESETS } from '../../constants/habitConstants'
 
 const DEFAULT_EMOJI = '✅'
 const EMOJI_OPTIONS = ['✅', '💪', '📚', '⏰', '🧠', '💧', '🧘', '🚀', '📝', '🔥', '⭐', '🎯']
@@ -63,6 +64,19 @@ export default function HabitModal({ mode = 'add', habit, onClose, onSave }) {
     setErrors((current) => ({ ...current, [field]: undefined }))
   }
 
+  function applyPreset(preset) {
+    setForm((current) => ({
+      ...current,
+      name: preset.name,
+      emoji: preset.emoji,
+      monthlyGoal: preset.monthlyGoal,
+      color: preset.color,
+      category: preset.category,
+      active: true,
+    }))
+    setErrors({})
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
     const nextErrors = validateForm(form)
@@ -93,6 +107,23 @@ export default function HabitModal({ mode = 'add', habit, onClose, onSave }) {
         </div>
 
         <form className="habit-modal__form" onSubmit={handleSubmit} noValidate>
+          {!isEdit ? (
+            <section className="habit-preset-panel" aria-label="Quick habit presets">
+              <div className="habit-preset-panel__head">
+                <span>QUICK PRESET</span>
+                <small>Pick one and edit before saving</small>
+              </div>
+              <div className="habit-preset-list">
+                {HABIT_MODAL_PRESETS.map((preset) => (
+                  <button key={preset.id} type="button" className="habit-preset-pill" onClick={() => applyPreset(preset)}>
+                    <span aria-hidden="true">{preset.emoji}</span>
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <label className="modal-field">
             <span>HABIT NAME</span>
             <input type="text" value={form.name} onChange={(event) => updateField('name', event.target.value)} placeholder="운동하기" aria-invalid={Boolean(errors.name)} autoFocus />

@@ -7,11 +7,22 @@ import RightStatsPanel from '../components/dashboard/RightStatsPanel'
 import {
   calculateMonthlyProgress,
   getDailyChartData,
+  getMonthDates,
   getMonthWeeks,
   getOverallProgressRows,
   getTopHabits,
 } from '../utils/dashboardStats'
+import {
+  calculateRecentFourWeekProgress,
+  getRecentDailyChartData,
+  getRecentFourWeeks,
+  getRecentOverallProgressRows,
+  getRecentPeriodLabel,
+  getRecentTopHabits,
+} from '../utils/recentStats'
 import { getHabitLog, getHabitMetrics, safePercent } from '../utils/habitUtils'
+
+const monthLabelFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' })
 
 export default function HomePage({
   habits = [],
@@ -23,19 +34,34 @@ export default function HomePage({
   todayEvents = [],
   todayTodos = [],
   selectedDateKey,
+  periodMode = 'recent',
+  onPeriodModeChange,
   onSelectDate,
   onToggleHabitDate,
   onEditHabit,
   onAddHabit,
   onOpenWeekDetail,
 }) {
+  const isMonthMode = periodMode === 'month'
   const year = today.getFullYear()
   const month = today.getMonth()
+  const recentWeeks = getRecentFourWeeks(today)
+  const recentDates = recentWeeks.flatMap((week) => week.dates)
   const monthWeeks = getMonthWeeks(year, month)
-  const chartData = getDailyChartData(habits, completions, year, month)
-  const monthlyProgress = calculateMonthlyProgress(habits, completions, year, month)
-  const topHabits = getTopHabits(habits, completions, year, month)
-  const overallRows = getOverallProgressRows(habits, completions, year, month)
+  const monthDates = getMonthDates(year, month)
+  const periodLabel = isMonthMode ? monthLabelFormatter.format(today) : getRecentPeriodLabel(today)
+  const chartData = isMonthMode ? getDailyChartData(habits, completions, year, month) : getRecentDailyChartData(habits, completions, today)
+  const periodProgress = isMonthMode ? calculateMonthlyProgress(habits, completions, year, month) : calculateRecentFourWeekProgress(habits, completions, today)
+  const topHabits = isMonthMode ? getTopHabits(habits, completions, year, month) : getRecentTopHabits(habits, completions, today)
+  const overallRows = isMonthMode ? getOverallProgressRows(habits, completions, year, month) : getRecentOverallProgressRows(habits, completions, today)
+  const overviewWeeks = isMonthMode ? monthWeeks : recentWeeks
+  const dashboardDates = isMonthMode ? monthDates : recentDates
+  const periodTitle = isMonthMode ? 'This Month Overview' : 'Recent 4 Weeks Overview'
+  const periodSubtitle = isMonthMode ? 'This Month' : 'Recent 4 Weeks'
+  const chartCaption = isMonthMode ? 'Based on this month' : 'Based on last 28 days'
+  const totalLabel = isMonthMode ? 'Monthly Total' : 'Recent Total'
+  const rightPanelLabel = isMonthMode ? 'This Month' : 'Recent 4 Weeks'
+  const donutInnerLabel = isMonthMode ? 'THIS MONTH' : 'LAST 28 DAYS'
 
   const completedHabitCount = todayHabits.filter((habit) => {
     const metrics = getHabitMetrics(habit, getHabitLog(completions, todayKey, habit))
@@ -57,12 +83,14 @@ export default function HomePage({
 
   return (
     <DashboardShell
-      leftPanel={<LeftControlPanel today={today} monthlyProgress={monthlyProgress} todaySummary={todaySummary} onAddHabit={onAddHabit} />}
+      leftPanel={<LeftControlPanel today={today} periodMode={periodMode} periodLabel={periodLabel} periodProgress={periodProgress} totalLabel={totalLabel} todaySummary={todaySummary} habits={habits} completions={completions} todayKey={todayKey} onPeriodModeChange={onPeriodModeChange} onToggleHabitDate={onToggleHabitDate} onAddHabit={onAddHabit} />}
       mainPanel={(
         <>
-          <DailyCompletionChart chartData={chartData} />
+          <DailyCompletionChart chartData={chartData} caption={chartCaption} />
           <MonthlyOverviewGrid
-            weeks={monthWeeks}
+            title={periodTitle}
+            subtitle={periodSubtitle}
+            weeks={overviewWeeks}
             habits={habits}
             completions={completions}
             todayKey={todayKey}
@@ -73,8 +101,9 @@ export default function HomePage({
           <DailyHabitsGrid
             habits={habits}
             completions={completions}
-            year={year}
-            month={month}
+            dates={dashboardDates}
+            weeks={overviewWeeks}
+            periodMode={periodMode}
             todayKey={todayKey}
             selectedDateKey={selectedDateKey}
             onSelectDate={onSelectDate}
@@ -83,7 +112,7 @@ export default function HomePage({
           />
         </>
       )}
-      rightPanel={<RightStatsPanel monthlyProgress={monthlyProgress} topHabits={topHabits} overallRows={overallRows} />}
+      rightPanel={<RightStatsPanel progress={periodProgress} topHabits={topHabits} overallRows={overallRows} label={rightPanelLabel} innerLabel={donutInnerLabel} />}
     />
   )
 }

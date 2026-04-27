@@ -89,7 +89,7 @@ export default function WeekDetailModal({
                   <span>{dateFormatter.format(date)}</span>
                 </div>
 
-                <div className="week-day-ring" style={{ background: `conic-gradient(#86ff5d ${rate}%, rgba(255,255,255,0.08) 0)` }}>
+                <div className="week-day-ring" style={{ background: `conic-gradient(var(--color-accent) ${rate}%, color-mix(in srgb, var(--color-text) 8%, transparent) 0)` }}>
                   <div>{formatPercent(rate)}</div>
                 </div>
 

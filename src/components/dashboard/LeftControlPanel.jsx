@@ -1,9 +1,26 @@
 import { Plus } from 'lucide-react'
+import TodayFocusCard from './TodayFocusCard'
 import { formatCount, formatPercent } from '../../utils/habitUtils'
 
-export default function LeftControlPanel({ today, monthlyProgress, todaySummary, onAddHabit }) {
-  const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(today)
+const PERIOD_OPTIONS = [
+  { id: 'recent', label: 'Recent 4 Weeks' },
+  { id: 'month', label: 'This Month' },
+]
 
+export default function LeftControlPanel({
+  today,
+  periodMode = 'recent',
+  periodLabel,
+  periodProgress,
+  totalLabel,
+  todaySummary,
+  habits,
+  completions,
+  todayKey,
+  onPeriodModeChange,
+  onToggleHabitDate,
+  onAddHabit,
+}) {
   return (
     <section className="dash-panel left-control-panel">
       <div className="tracker-brand">
@@ -11,15 +28,30 @@ export default function LeftControlPanel({ today, monthlyProgress, todaySummary,
         <span>TRACKER</span>
       </div>
 
+      <div className="period-toggle" role="group" aria-label="Dashboard period">
+        {PERIOD_OPTIONS.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            className={periodMode === option.id ? 'period-toggle__button period-toggle__button--active' : 'period-toggle__button'}
+            onClick={() => onPeriodModeChange?.(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
       <div className="control-block">
-        <span className="dash-label">Month</span>
-        <strong>{monthLabel}</strong>
+        <span className="dash-label">{periodMode === 'month' ? 'Month' : 'Period'}</span>
+        <strong>{periodLabel}</strong>
       </div>
 
       <div className="control-block">
         <span className="dash-label">Today</span>
         <strong>{new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' }).format(today)}</strong>
       </div>
+
+      <TodayFocusCard habits={habits} completions={completions} todayKey={todayKey} onToggleHabitDate={onToggleHabitDate} />
 
       <div className="control-grid">
         <div>
@@ -35,15 +67,15 @@ export default function LeftControlPanel({ today, monthlyProgress, todaySummary,
           <strong>{formatCount(todaySummary.completedHabits)}/{formatCount(todaySummary.totalHabits)}</strong>
         </div>
         <div>
-          <span className="dash-label">Rate</span>
+          <span className="dash-label">Today Rate</span>
           <strong>{formatPercent(todaySummary.overallRate)}</strong>
         </div>
       </div>
 
       <div className="control-block control-block--accent">
-        <span className="dash-label">Monthly Total</span>
-        <strong>{formatPercent(monthlyProgress.percent)}</strong>
-        <small>{formatCount(monthlyProgress.done)} done / {formatCount(monthlyProgress.total)} total</small>
+        <span className="dash-label">{totalLabel}</span>
+        <strong>{formatPercent(periodProgress.percent)}</strong>
+        <small>{formatCount(periodProgress.done)} done / {formatCount(periodProgress.total)} total</small>
       </div>
 
       <button type="button" className="dashboard-add-habit-button" onClick={onAddHabit}>

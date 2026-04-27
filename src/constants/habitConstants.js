@@ -42,3 +42,16 @@ export const TODO_PRIORITY_OPTIONS = [
   { value: 'medium', label: 'Medium' },
   { value: 'low', label: 'Low' },
 ]
+
+export const HABIT_MODAL_PRESETS = [
+  { id: 'wake-up', emoji: '⏰', name: 'Wake Up', monthlyGoal: 28, color: '#86ff5d', category: 'wake' },
+  { id: 'workout', emoji: '💪', name: 'Workout', monthlyGoal: 20, color: '#ffffff', category: 'workout' },
+  { id: 'read', emoji: '📚', name: 'Read', monthlyGoal: 20, color: '#f8ff7a', category: 'study' },
+  { id: 'meditation', emoji: '🧘', name: 'Meditation', monthlyGoal: 20, color: '#00e5ff', category: 'custom' },
+  { id: 'drink-water', emoji: '💧', name: 'Drink Water', monthlyGoal: 28, color: '#00e5ff', category: 'custom' },
+  { id: 'sleep-before-12', emoji: '💤', name: 'Sleep Before 12', monthlyGoal: 24, color: '#86ff5d', category: 'custom' },
+  { id: 'journal', emoji: '✍️', name: 'Journal', monthlyGoal: 20, color: '#ffffff', category: 'custom' },
+  { id: 'no-social-media', emoji: '📵', name: 'No Social Media', monthlyGoal: 20, color: '#ff806e', category: 'custom' },
+  { id: 'clean-room', emoji: '🧹', name: 'Clean Room', monthlyGoal: 12, color: '#ffffff', category: 'custom' },
+  { id: 'healthy-meal', emoji: '🥗', name: 'Healthy Meal', monthlyGoal: 24, color: '#86ff5d', category: 'custom' },
+]

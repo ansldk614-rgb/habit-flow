@@ -152,11 +152,17 @@ export function getOverallProgressRows(habits, completions, year, month) {
 export function getDailyChartData(habits, completions, year, month) {
   return getMonthDates(year, month).map((dateKey) => {
     const date = parseDateKey(dateKey)
+    const scheduledHabits = getScheduledHabits(habits, dateKey)
+    const done = getCompletedHabitCount(scheduledHabits, completions, dateKey)
+    const total = scheduledHabits.length
 
     return {
       date: dateKey,
+      dateKey,
       day: date.getDate(),
-      rate: calculateDailyCompletionRate(habits, completions, dateKey),
+      rate: total === 0 ? 0 : safePercent((done / total) * 100),
+      done,
+      total,
     }
   })
 }

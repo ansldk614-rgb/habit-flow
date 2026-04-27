@@ -1,4 +1,3 @@
-import { getMonthDates, getMonthWeeks } from '../../utils/dashboardStats'
 import {
   formatCount,
   getHabitDisplayName,
@@ -9,6 +8,7 @@ import {
   isHabitScheduledForDate,
   safePercent,
 } from '../../utils/habitUtils'
+import { getEffectiveRecentGoal } from '../../utils/recentStats'
 
 const weekdayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' })
 
@@ -28,7 +28,12 @@ function getDateMeta(dateKey, todayKey, selectedDateKey, weekStartDates) {
   }
 }
 
-function getMonthlyGoal(habit, dates) {
+function getPeriodGoal(habit, dates) {
+  const scheduledGoal = dates.filter((dateKey) => isHabitScheduledForDate(habit, dateKey)).length
+  return formatCount(Math.min(getEffectiveRecentGoal(habit), scheduledGoal || getEffectiveRecentGoal(habit)))
+}
+
+function getMonthGoal(habit, dates) {
   return formatCount(
     habit.monthlyGoal,
     dates.filter((dateKey) => isHabitScheduledForDate(habit, dateKey)).length,
@@ -38,26 +43,27 @@ function getMonthlyGoal(habit, dates) {
 export default function DailyHabitsGrid({
   habits = [],
   completions = {},
-  year,
-  month,
+  dates = [],
+  weeks = [],
+  periodMode = 'recent',
   todayKey,
   selectedDateKey,
   onSelectDate,
   onToggleHabitDate,
   onEditHabit,
 }) {
-  const dates = getMonthDates(year, month)
-  const weeks = getMonthWeeks(year, month)
   const weekStartDates = new Set(weeks.map((week) => week.dates[0]).filter(Boolean))
   const dateColumns = dates.map((dateKey) => getDateMeta(dateKey, todayKey, selectedDateKey, weekStartDates))
   const gridTemplateColumns = `minmax(112px, 1.35fr) minmax(36px, 0.42fr) repeat(${dates.length}, minmax(12px, 1fr))`
+
+  const isMonthMode = periodMode === 'month'
 
   return (
     <section className="dash-panel dash-panel--habits-grid">
       <div className="dash-panel__head">
         <div>
           <span className="dash-label">Daily Habits Grid</span>
-          <strong>월간 습관 체크 테이블</strong>
+          <strong>{isMonthMode ? 'This month habit table' : 'Recent 4 weeks habit table'}</strong>
         </div>
       </div>
 
@@ -102,7 +108,7 @@ export default function DailyHabitsGrid({
               <span className="daily-habit-name__text">{getHabitDisplayName(habit)}</span>
             </button>
             <button type="button" className="daily-habits-goal" title={getHabitGoalLabel(habit)} onClick={() => onEditHabit?.(habit)}>
-              {getMonthlyGoal(habit, dates)}
+              {isMonthMode ? getMonthGoal(habit, dates) : getPeriodGoal(habit, dates)}
             </button>
             {dates.map((dateKey) => {
               const scheduled = isHabitScheduledForDate(habit, dateKey)
