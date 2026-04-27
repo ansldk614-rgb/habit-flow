@@ -108,6 +108,8 @@ export default function SettingsPanel({
         completions: appData?.completions ?? {},
         events: appData?.events ?? [],
         todos: appData?.todos ?? [],
+        companion: appData?.companion ?? {},
+        rewardedCompletions: appData?.rewardedCompletions ?? {},
         settings: appData?.settings ?? {},
       },
       theme: selectedThemeId,
