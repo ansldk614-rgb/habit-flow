@@ -2506,6 +2506,19 @@ textarea {
   font-size: 0.96rem;
 }
 
+.chart-rate-summary {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.chart-rate-summary span {
+  color: #8c9789;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
 .dash-label {
   display: block;
   color: #72f35e;
@@ -2579,15 +2592,26 @@ textarea {
   padding: 10px 12px 12px;
 }
 
+.dashboard-chart__canvas {
+  overflow-x: auto;
+}
+
 .dashboard-chart svg {
   display: block;
+  min-width: 620px;
   width: 100%;
-  height: 150px;
+  height: 164px;
 }
 
 .dashboard-chart__grid {
   stroke: rgba(255, 255, 255, 0.08);
   stroke-width: 1;
+}
+
+.dashboard-chart__axis-label {
+  fill: rgba(179, 190, 176, 0.55);
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .dashboard-chart__line {
@@ -2599,13 +2623,25 @@ textarea {
   filter: drop-shadow(0 0 7px rgba(134, 255, 93, 0.62));
 }
 
+.dashboard-chart__point {
+  fill: #baff9a;
+  stroke: #071006;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 5px rgba(134, 255, 93, 0.52));
+}
+
 .dashboard-chart__labels {
   display: grid;
-  grid-template-columns: repeat(11, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(31, minmax(0, 1fr));
+  min-width: 620px;
+  gap: 2px;
   color: #8f9b8d;
   font-size: 0.64rem;
   text-align: center;
+}
+
+.dashboard-chart__labels .is-muted {
+  visibility: hidden;
 }
 
 .month-overview-grid {
@@ -3157,7 +3193,12 @@ textarea {
   }
 
   .dashboard-chart svg {
-    height: 120px;
+    height: 124px;
+    min-width: 560px;
+  }
+
+  .dashboard-chart__labels {
+    min-width: 560px;
   }
 
   .daily-habits-table {
