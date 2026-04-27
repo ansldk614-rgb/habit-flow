@@ -3636,3 +3636,440 @@ textarea {
     max-height: calc(92vh - 78px);
   }
 }
+
+/* Neon dashboard design pass */
+:root {
+  --bg: #050805;
+  --panel: #0d1110;
+  --panel-alt: #111816;
+  --border: #1f2a24;
+  --border-strong: #2f4a38;
+  --text-primary: #f2f5f2;
+  --text-secondary: #8b9a8f;
+  --neon-green: #39ff4a;
+  --green-soft: #32e342;
+  --dark-green: #123d1a;
+  --red: #ff4d3d;
+  --yellow: #f5c542;
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(57, 255, 74, 0.055), transparent 30%),
+    linear-gradient(180deg, var(--bg), #030503 100%);
+  color: var(--text-primary);
+}
+
+.app-shell {
+  width: min(100%, 1440px);
+}
+
+.hero-panel,
+.panel,
+.mini-panel,
+.dash-panel,
+.habit-modal,
+.week-detail-modal {
+  border-color: var(--border);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(17, 24, 22, 0.96), rgba(7, 10, 8, 0.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    0 18px 42px rgba(0, 0, 0, 0.26);
+}
+
+.dash-panel:hover,
+.panel:hover,
+.mini-panel:hover {
+  border-color: var(--border-strong);
+}
+
+.hero-panel {
+  padding: 16px 18px;
+  background:
+    linear-gradient(90deg, rgba(57, 255, 74, 0.04), transparent 52%),
+    var(--panel);
+}
+
+.eyebrow,
+.section-kicker,
+.dash-label,
+.tracker-brand strong,
+.month-week-card__head span,
+.month-week-card__foot strong,
+.daily-week-label,
+.top-habit-row b,
+.good {
+  color: var(--neon-green);
+}
+
+.hero-copy h1,
+.dash-panel__head strong,
+.section-header h2,
+.progress-copy strong,
+.schedule-head strong,
+.summary-item strong,
+.empty-card p,
+.habit-modal__head h2,
+.week-detail-modal h2 {
+  color: var(--text-primary);
+}
+
+.hero-date,
+.dashboard-home__meta,
+.muted-copy,
+.ring-meta,
+.modal-field span,
+.modal-toggle span,
+.month-day-cell__date,
+.month-day-cell small,
+.daily-date-head span,
+.dashboard-chart__axis-label,
+.dashboard-chart__labels,
+.top-habit-rank,
+.dashboard-empty {
+  color: var(--text-secondary);
+}
+
+.tabs-bar {
+  gap: 7px;
+}
+
+.tab-chip,
+.secondary-button,
+.modal-cancel-button,
+.calendar-nav-button {
+  border-color: var(--border);
+  border-radius: 5px;
+  background: #080c0a;
+  color: var(--text-primary);
+}
+
+.tab-chip:hover,
+.secondary-button:hover,
+.modal-cancel-button:hover,
+.calendar-nav-button:hover {
+  border-color: var(--border-strong);
+  background: var(--panel-alt);
+}
+
+.tab-chip--active,
+.primary-button,
+.modal-save-button,
+.dashboard-add-habit-button,
+.quick-add-button,
+.day-chip--active {
+  background: var(--neon-green);
+  color: #031003;
+  box-shadow: 0 0 16px rgba(57, 255, 74, 0.2);
+}
+
+.monthly-dashboard {
+  gap: 10px;
+}
+
+.dash-panel__head,
+.stat-panel__head,
+.dense-panel__header {
+  border-bottom-color: rgba(242, 245, 242, 0.06);
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.dash-panel__head strong,
+.stat-panel__head strong,
+.dense-panel__header strong {
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.left-control-panel,
+.control-block,
+.control-grid > div {
+  background: var(--panel);
+}
+
+.control-block,
+.control-grid > div {
+  border-color: var(--border);
+  border-radius: 4px;
+}
+
+.control-block--accent {
+  border-color: var(--border-strong);
+  background: linear-gradient(180deg, rgba(18, 61, 26, 0.32), rgba(0, 0, 0, 0.16));
+}
+
+.dashboard-chart__grid,
+.trend-grid-line {
+  stroke: rgba(242, 245, 242, 0.07);
+}
+
+.dashboard-chart__line,
+.trend-line {
+  stroke: var(--neon-green);
+  filter: drop-shadow(0 0 6px rgba(57, 255, 74, 0.66)) drop-shadow(0 0 14px rgba(57, 255, 74, 0.2));
+}
+
+.dashboard-chart__point {
+  fill: #c4ffc8;
+  stroke: var(--bg);
+}
+
+.month-week-card,
+.week-day-card,
+.dense-panel,
+.calendar-detail-card,
+.home-section-card,
+.habit-card,
+.overview-card,
+.event-card,
+.todo-card,
+.empty-card {
+  border-color: var(--border);
+  border-radius: 5px;
+  background: var(--panel);
+}
+
+.month-week-card:hover,
+.week-day-card:hover,
+.habit-card:hover,
+.overview-card:hover,
+.event-card:hover,
+.todo-card:hover {
+  border-color: var(--border-strong);
+}
+
+.month-day-cell {
+  border-color: var(--border);
+  border-radius: 3px;
+  background:
+    linear-gradient(180deg, rgba(57, 255, 74, var(--day-alpha, 0.06)), rgba(0, 0, 0, 0.2)),
+    #070a08;
+}
+
+.month-day-cell:hover {
+  border-color: var(--green-soft);
+  box-shadow: 0 0 12px rgba(57, 255, 74, 0.14);
+}
+
+.month-day-cell i,
+.mini-bar,
+.overall-progress-row i b,
+.row-progress span,
+.progress-bar span {
+  background: linear-gradient(90deg, var(--dark-green), var(--green-soft), var(--neon-green));
+  box-shadow: 0 0 9px rgba(57, 255, 74, 0.24);
+  transition: width 220ms ease, height 220ms ease, background 160ms ease;
+}
+
+.month-day-cell--today,
+.calendar-cell--today,
+.daily-date-head--today,
+.habit-grid-cell--today,
+.week-day-card--today {
+  outline-color: rgba(57, 255, 74, 0.92);
+  border-color: var(--green-soft);
+}
+
+.month-day-cell--selected,
+.daily-date-head--selected,
+.habit-grid-cell--selected,
+.calendar-cell--selected {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(57, 255, 74, 0.22), transparent 62%),
+    rgba(18, 61, 26, 0.38);
+}
+
+.daily-habits-table--week,
+.daily-habits-table--head,
+.daily-habits-sticky,
+.daily-habit-name,
+.daily-habits-goal {
+  background: #070a08;
+}
+
+.daily-habits-table {
+  border-bottom-color: rgba(242, 245, 242, 0.055);
+}
+
+.daily-week-label,
+.daily-date-head--week-start,
+.habit-grid-cell--week-start {
+  border-left-color: var(--border-strong);
+}
+
+.habit-grid-cell {
+  border-color: rgba(31, 42, 36, 0.9);
+  border-radius: 2px;
+  background: #060806;
+}
+
+.habit-grid-cell--scheduled {
+  background: rgba(57, 255, 74, var(--cell-alpha, 0.08));
+  border-color: rgba(57, 255, 74, 0.16);
+}
+
+.habit-grid-cell--done,
+.mini-matrix__cell--done,
+.matrix-cell--done {
+  background: var(--neon-green);
+  color: #041004;
+  box-shadow: 0 0 10px rgba(57, 255, 74, 0.35);
+}
+
+.habit-grid-cell:not(:disabled):hover {
+  border-color: var(--green-soft);
+  background: rgba(57, 255, 74, 0.22);
+}
+
+.monthly-donut {
+  box-shadow:
+    0 0 18px rgba(57, 255, 74, 0.18),
+    inset 0 0 12px rgba(57, 255, 74, 0.08);
+}
+
+.monthly-donut > div,
+.week-day-ring div,
+.radial-gauge-inner,
+.day-ring__inner {
+  background: #060806;
+}
+
+.monthly-donut span,
+.monthly-donut-meta b,
+.week-day-card__head strong,
+.week-task-row--done strong,
+.week-task-row--done span {
+  color: var(--neon-green);
+}
+
+.bad,
+.week-task-row span,
+.monthly-donut-meta span:not(.is-clear):last-child b,
+.week-day-card__foot span {
+  color: var(--red);
+}
+
+.priority-pill--medium {
+  color: var(--yellow);
+}
+
+.overall-progress-table__head,
+.table-head {
+  color: var(--text-secondary);
+  letter-spacing: 0.045em;
+}
+
+.overall-progress-row,
+.top-habit-row,
+.week-task-row {
+  border-color: rgba(242, 245, 242, 0.055);
+}
+
+.overall-progress-row--complete,
+.top-habit-row--best {
+  background: linear-gradient(90deg, rgba(57, 255, 74, 0.09), transparent);
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.78);
+  animation: modal-fade-in 140ms ease-out;
+}
+
+.habit-modal,
+.week-detail-modal {
+  background: #080b09;
+  animation: modal-rise-in 160ms ease-out;
+}
+
+.modal-field input,
+.modal-field select,
+.modal-toggle,
+.memo-input,
+.field input,
+.field textarea,
+.field select,
+.compact-field input,
+.quick-field input,
+.bulk-input {
+  border-color: var(--border);
+  border-radius: 4px;
+  background: #101512;
+  color: var(--text-primary);
+}
+
+.modal-field input:focus,
+.modal-field select:focus,
+.memo-input:focus,
+.field input:focus,
+.bulk-input:focus {
+  outline: 2px solid rgba(57, 255, 74, 0.16);
+  border-color: var(--green-soft);
+}
+
+.modal-emoji,
+.modal-cancel-button,
+.modal-icon-button {
+  border-color: var(--border);
+  background: #101512;
+}
+
+.modal-emoji--active,
+.modal-color--active {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 12px rgba(57, 255, 74, 0.2);
+}
+
+button,
+.month-day-cell,
+.habit-grid-cell,
+.top-habit-row,
+.overall-progress-row,
+.week-task-row,
+.dash-panel {
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 680px) {
+  .app-shell {
+    padding-inline: 10px;
+  }
+
+  .hero-panel {
+    padding: 14px;
+  }
+
+  .dash-panel__head {
+    min-height: 40px;
+    padding: 9px 10px;
+  }
+
+  .monthly-dashboard {
+    gap: 9px;
+  }
+}
