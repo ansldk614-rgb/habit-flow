@@ -347,7 +347,7 @@ function App() {
       </section>
 
       {activeTab === 'home' && (
-        <HomePage completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} />
+        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} />
       )}
 
       {activeTab === 'calendar' && (
