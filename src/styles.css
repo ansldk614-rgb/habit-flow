@@ -3379,6 +3379,193 @@ textarea {
   box-shadow: 0 0 18px rgba(134, 255, 93, 0.22);
 }
 
+.week-detail-modal {
+  width: min(96vw, 1180px);
+  max-height: min(92vh, 760px);
+  overflow: hidden;
+  border: 1px solid rgba(170, 178, 168, 0.34);
+  border-radius: 8px;
+  background: #090b0a;
+  box-shadow:
+    0 34px 80px rgba(0, 0, 0, 0.68),
+    inset 0 0 0 1px rgba(134, 255, 93, 0.06);
+}
+
+.week-detail-board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(132px, 1fr));
+  gap: 10px;
+  overflow-x: auto;
+  padding: 16px;
+}
+
+.week-day-card {
+  min-width: 132px;
+  border: 1px solid rgba(134, 255, 93, 0.1);
+  border-radius: 7px;
+  background: linear-gradient(180deg, rgba(16, 19, 17, 0.96), rgba(5, 7, 6, 0.98));
+  overflow: hidden;
+}
+
+.week-day-card--today {
+  border-color: rgba(134, 255, 93, 0.56);
+  box-shadow: 0 0 16px rgba(134, 255, 93, 0.12);
+}
+
+.week-day-card--disabled {
+  opacity: 0.42;
+}
+
+.week-day-card__head {
+  display: grid;
+  gap: 3px;
+  padding: 11px 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  text-align: center;
+}
+
+.week-day-card__head strong {
+  color: #86ff5d;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.week-day-card__head span {
+  color: #8d988a;
+  font-size: 0.64rem;
+}
+
+.week-day-ring {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 12px auto;
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(134, 255, 93, 0.12);
+}
+
+.week-day-ring div {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: inherit;
+  background: #080a09;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.week-day-card__tasks {
+  margin: 0 10px 8px;
+  min-height: 24px;
+  border-radius: 4px;
+  background: #86ff5d;
+  color: #061005;
+  text-align: center;
+  font-size: 0.64rem;
+  font-weight: 950;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+}
+
+.week-task-list {
+  display: grid;
+  gap: 4px;
+  min-height: 172px;
+  padding: 0 8px 10px;
+}
+
+.week-task-empty {
+  margin: 8px 0;
+  color: #8e988b;
+  text-align: center;
+  font-size: 0.72rem;
+}
+
+.week-task-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 5px;
+  min-height: 25px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 0;
+  background: transparent;
+  color: #9aa398;
+  padding: 0;
+  text-align: left;
+}
+
+.week-task-row:hover {
+  background: rgba(134, 255, 93, 0.07);
+}
+
+.week-task-row span {
+  color: #ff634d;
+  font-weight: 950;
+  text-align: center;
+}
+
+.week-task-row--done span {
+  color: #86ff5d;
+}
+
+.week-task-row strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  color: #dfe8dc;
+  font-size: 0.68rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.week-task-row--done strong {
+  color: #86ff5d;
+}
+
+.week-task-row i {
+  font-style: normal;
+}
+
+.week-task-row em {
+  color: #838d81;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 900;
+  text-align: right;
+}
+
+.week-day-card__foot {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.week-day-card__foot span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #ff806e;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.week-day-card__foot span:first-child,
+.week-day-card__foot .is-clear {
+  color: #86ff5d;
+}
+
+.week-day-card__foot b {
+  font-size: 0.76rem;
+}
+
 @media (max-width: 1120px) {
   .monthly-dashboard {
     grid-template-columns: minmax(0, 1fr);
@@ -3437,5 +3624,15 @@ textarea {
   .modal-form-grid,
   .habit-modal__actions {
     grid-template-columns: 1fr;
+  }
+
+  .week-detail-modal {
+    width: min(96vw, 520px);
+  }
+
+  .week-detail-board {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+    max-height: calc(92vh - 78px);
   }
 }

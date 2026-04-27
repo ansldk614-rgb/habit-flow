@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { COLOR_OPTIONS, QUICK_HABITS, TABS } from './constants/habitConstants'
 import HabitModal from './components/modals/HabitModal'
+import WeekDetailModal from './components/modals/WeekDetailModal'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import CalendarPage from './pages/CalendarPage'
 import CompanionPage from './pages/CompanionPage'
@@ -54,6 +55,7 @@ function App() {
   const [eventForm, setEventForm] = useState(() => createDefaultEvent(getDateKey()))
   const [todoForm, setTodoForm] = useState(() => createDefaultTodo(getDateKey()))
   const [habitModal, setHabitModal] = useState({ isOpen: false, mode: 'add', habit: null })
+  const [weekDetailModal, setWeekDetailModal] = useState({ isOpen: false, week: null })
 
   const today = new Date()
   const todayKey = getDateKey(today)
@@ -250,6 +252,11 @@ function App() {
     if (week?.dates?.[0]) {
       setSelectedDateKey(week.dates[0])
     }
+    setWeekDetailModal({ isOpen: true, week })
+  }
+
+  function closeWeekDetailModal() {
+    setWeekDetailModal({ isOpen: false, week: null })
   }
 
   function openAddHabitModal() {
@@ -451,6 +458,18 @@ function App() {
           habit={habitModal.habit}
           onClose={closeHabitModal}
           onSave={saveDashboardHabit}
+        />
+      )}
+
+      {weekDetailModal.isOpen && (
+        <WeekDetailModal
+          week={weekDetailModal.week}
+          habits={habits}
+          completions={completions}
+          todayKey={todayKey}
+          activeMonth={{ year: today.getFullYear(), month: today.getMonth() }}
+          onClose={closeWeekDetailModal}
+          onToggleHabitDate={toggleDashboardHabitDate}
         />
       )}
     </main>
