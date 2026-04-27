@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { COLOR_OPTIONS, QUICK_HABITS, TABS } from './constants/habitConstants'
+import HabitModal from './components/modals/HabitModal'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import CalendarPage from './pages/CalendarPage'
 import CompanionPage from './pages/CompanionPage'
@@ -52,6 +53,7 @@ function App() {
   const [calendarAnchorDate, setCalendarAnchorDate] = useState(() => new Date())
   const [eventForm, setEventForm] = useState(() => createDefaultEvent(getDateKey()))
   const [todoForm, setTodoForm] = useState(() => createDefaultTodo(getDateKey()))
+  const [habitModal, setHabitModal] = useState({ isOpen: false, mode: 'add', habit: null })
 
   const today = new Date()
   const todayKey = getDateKey(today)
@@ -250,6 +252,68 @@ function App() {
     }
   }
 
+  function openAddHabitModal() {
+    setHabitModal({ isOpen: true, mode: 'add', habit: null })
+  }
+
+  function openEditHabitModal(habit) {
+    setHabitModal({ isOpen: true, mode: 'edit', habit })
+  }
+
+  function closeHabitModal() {
+    setHabitModal({ isOpen: false, mode: 'add', habit: null })
+  }
+
+  function createTargetForDashboardHabit(type) {
+    switch (type) {
+      case 'wake':
+        return { targetTime: '07:00' }
+      case 'workout':
+        return { targetVolume: 5000 }
+      case 'study':
+        return { targetMinutes: 90 }
+      default:
+        return { targetPercent: 100 }
+    }
+  }
+
+  function saveDashboardHabit(values) {
+    const now = new Date().toISOString()
+
+    setState((current) => {
+      if (habitModal.mode === 'edit' && habitModal.habit?.id) {
+        return {
+          ...current,
+          habits: current.habits.map((habit) => {
+            if (habit.id !== habitModal.habit.id) return habit
+            return {
+              ...habit,
+              ...values,
+              target: habit.type === values.type ? habit.target : createTargetForDashboardHabit(values.type),
+              updatedAt: now,
+            }
+          }),
+        }
+      }
+
+      const nextHabit = {
+        id: createId(),
+        ...values,
+        days: [1, 2, 3, 4, 5],
+        target: createTargetForDashboardHabit(values.type),
+        createdAt: now,
+        updatedAt: now,
+      }
+
+      return {
+        ...current,
+        habits: [nextHabit, ...current.habits],
+      }
+    })
+
+    closeHabitModal()
+  }
+
   function deleteHabit(habitId) {
     setState((current) => {
       const nextCompletions = Object.fromEntries(
@@ -360,7 +424,7 @@ function App() {
       </section>
 
       {activeTab === 'home' && (
-        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onOpenWeekDetail={openDashboardWeekDetail} />
+        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
       )}
 
       {activeTab === 'calendar' && (
@@ -380,6 +444,15 @@ function App() {
       )}
 
       {activeTab === 'companion' && <CompanionPage rpgProfile={rpgProfile} />}
+
+      {habitModal.isOpen && (
+        <HabitModal
+          mode={habitModal.mode}
+          habit={habitModal.habit}
+          onClose={closeHabitModal}
+          onSave={saveDashboardHabit}
+        />
+      )}
     </main>
   )
 }

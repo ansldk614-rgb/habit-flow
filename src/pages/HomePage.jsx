@@ -26,6 +26,7 @@ export default function HomePage({
   onSelectDate,
   onToggleHabitDate,
   onEditHabit,
+  onAddHabit,
   onOpenWeekDetail,
 }) {
   const year = today.getFullYear()
@@ -56,7 +57,7 @@ export default function HomePage({
 
   return (
     <DashboardShell
-      leftPanel={<LeftControlPanel today={today} monthlyProgress={monthlyProgress} todaySummary={todaySummary} />}
+      leftPanel={<LeftControlPanel today={today} monthlyProgress={monthlyProgress} todaySummary={todaySummary} onAddHabit={onAddHabit} />}
       mainPanel={(
         <>
           <DailyCompletionChart chartData={chartData} />

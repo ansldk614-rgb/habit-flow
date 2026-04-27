@@ -1,6 +1,7 @@
+import { Plus } from 'lucide-react'
 import { formatCount, formatPercent } from '../../utils/habitUtils'
 
-export default function LeftControlPanel({ today, monthlyProgress, todaySummary }) {
+export default function LeftControlPanel({ today, monthlyProgress, todaySummary, onAddHabit }) {
   const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(today)
 
   return (
@@ -44,6 +45,11 @@ export default function LeftControlPanel({ today, monthlyProgress, todaySummary 
         <strong>{formatPercent(monthlyProgress.percent)}</strong>
         <small>{formatCount(monthlyProgress.done)} done / {formatCount(monthlyProgress.total)} total</small>
       </div>
+
+      <button type="button" className="dashboard-add-habit-button" onClick={onAddHabit}>
+        <Plus size={16} />
+        ADD HABIT
+      </button>
     </section>
   )
 }
