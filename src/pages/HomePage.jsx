@@ -26,6 +26,7 @@ export default function HomePage({
   onSelectDate,
   onToggleHabitDate,
   onEditHabit,
+  onOpenWeekDetail,
 }) {
   const year = today.getFullYear()
   const month = today.getMonth()
@@ -59,7 +60,15 @@ export default function HomePage({
       mainPanel={(
         <>
           <DailyCompletionChart chartData={chartData} />
-          <MonthlyOverviewGrid weeks={monthWeeks} habits={habits} completions={completions} />
+          <MonthlyOverviewGrid
+            weeks={monthWeeks}
+            habits={habits}
+            completions={completions}
+            todayKey={todayKey}
+            selectedDateKey={selectedDateKey}
+            onSelectDate={onSelectDate}
+            onOpenWeekDetail={onOpenWeekDetail}
+          />
           <DailyHabitsGrid
             habits={habits}
             completions={completions}

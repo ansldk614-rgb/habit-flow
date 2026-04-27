@@ -244,6 +244,12 @@ function App() {
     setSelectedDateKey(dateKey)
   }
 
+  function openDashboardWeekDetail(week) {
+    if (week?.dates?.[0]) {
+      setSelectedDateKey(week.dates[0])
+    }
+  }
+
   function deleteHabit(habitId) {
     setState((current) => {
       const nextCompletions = Object.fromEntries(
@@ -354,7 +360,7 @@ function App() {
       </section>
 
       {activeTab === 'home' && (
-        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} />
+        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onOpenWeekDetail={openDashboardWeekDetail} />
       )}
 
       {activeTab === 'calendar' && (

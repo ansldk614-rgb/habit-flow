@@ -2623,9 +2623,16 @@ textarea {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  width: 100%;
+  min-height: 28px;
   margin-bottom: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #ffffff;
   font-size: 0.72rem;
+  padding: 0;
+  text-align: left;
 }
 
 .month-week-card__head span {
@@ -2633,22 +2640,39 @@ textarea {
   font-weight: 900;
 }
 
+.month-week-card__head:hover strong {
+  color: #86ff5d;
+}
+
 .month-week-card__days {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 4px;
-  min-height: 58px;
+  min-height: 74px;
   align-items: end;
 }
 
 .month-day-cell {
   display: grid;
-  align-items: end;
+  align-content: end;
+  justify-items: center;
   gap: 3px;
-  min-height: 58px;
+  min-height: 74px;
+  border: 1px solid rgba(134, 255, 93, 0.08);
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(134, 255, 93, var(--day-alpha, 0.08)), rgba(0, 0, 0, 0.16));
+  padding: 4px 2px;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease, background 140ms ease;
 }
 
-.month-day-cell span {
+.month-day-cell:hover {
+  border-color: rgba(134, 255, 93, 0.5);
+  box-shadow: 0 0 12px rgba(134, 255, 93, 0.14);
+  transform: translateY(-1px);
+}
+
+.month-day-cell__date {
   color: #95a094;
   font-size: 0.58rem;
   text-align: center;
@@ -2656,10 +2680,45 @@ textarea {
 
 .month-day-cell i {
   display: block;
+  width: 100%;
+  height: var(--bar-height, 8%);
   min-height: 7px;
   border-radius: 2px 2px 0 0;
   background: linear-gradient(180deg, #95ff65, #2f8e28);
   box-shadow: 0 0 10px rgba(134, 255, 93, 0.22);
+}
+
+.month-day-cell small {
+  color: #dfe9dd;
+  font-size: 0.56rem;
+  font-weight: 800;
+}
+
+.month-day-cell--today {
+  outline: 1px solid rgba(255, 255, 255, 0.86);
+  outline-offset: 1px;
+}
+
+.month-day-cell--selected {
+  border-color: rgba(134, 255, 93, 0.82);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(134, 255, 93, 0.34), transparent 62%),
+    rgba(134, 255, 93, 0.16);
+}
+
+.month-week-card__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  color: #8d988a;
+  font-size: 0.68rem;
+}
+
+.month-week-card__foot strong {
+  color: #75ff62;
 }
 
 .daily-habits-scroll {
