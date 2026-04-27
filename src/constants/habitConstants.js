@@ -1,7 +1,7 @@
 export const STORAGE_KEY = 'habit-flow-mvp'
 export const STORAGE_VERSION = 1
 export const DEFAULT_SETTINGS = {
-  theme: 'light',
+  theme: 'neonMatrix',
   weekStartsOn: 'monday',
 }
 

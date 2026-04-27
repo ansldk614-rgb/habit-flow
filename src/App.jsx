@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Settings, Sparkles } from 'lucide-react'
 import { COLOR_OPTIONS, QUICK_HABITS, TABS } from './constants/habitConstants'
+import { applyTheme, getStoredThemeId, getThemeById, saveThemeId } from './constants/themeConstants'
 import HabitModal from './components/modals/HabitModal'
 import WeekDetailModal from './components/modals/WeekDetailModal'
+import SettingsPanel from './components/settings/SettingsPanel'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import CalendarPage from './pages/CalendarPage'
 import CompanionPage from './pages/CompanionPage'
@@ -45,6 +47,7 @@ function createInitialHabitForm() {
 function App() {
   const [{ habits, completions, events, todos }, setState] = useLocalStorage()
   const [activeTab, setActiveTab] = useState('home')
+  const [selectedThemeId, setSelectedThemeId] = useState(getStoredThemeId)
   const [habitForm, setHabitForm] = useState(createInitialHabitForm)
   const [habitErrors, setHabitErrors] = useState({})
   const [eventErrors, setEventErrors] = useState({})
@@ -56,6 +59,7 @@ function App() {
   const [todoForm, setTodoForm] = useState(() => createDefaultTodo(getDateKey()))
   const [habitModal, setHabitModal] = useState({ isOpen: false, mode: 'add', habit: null })
   const [weekDetailModal, setWeekDetailModal] = useState({ isOpen: false, week: null })
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const today = new Date()
   const todayKey = getDateKey(today)
@@ -71,6 +75,18 @@ function App() {
   const todoCountsByDate = countTodosByDate(todos)
   const todayEvents = getTodayEvents(events, todayKey)
   const todayTodos = getTodayTodos(todos, todayKey)
+  const selectedTheme = getThemeById(selectedThemeId)
+
+  useEffect(() => {
+    applyTheme(selectedTheme)
+  }, [selectedTheme])
+
+  function selectTheme(theme) {
+    const nextTheme = getThemeById(theme?.id)
+    setSelectedThemeId(nextTheme.id)
+    applyTheme(nextTheme)
+    saveThemeId(nextTheme.id)
+  }
 
   function toggleDay(day) {
     setHabitForm((current) => {
@@ -415,10 +431,22 @@ function App() {
   return (
     <main className="app-shell">
       <section className="hero-panel">
-        <div className="hero-copy">
-          <p className="eyebrow"><Sparkles size={16} />해빗 플로우</p>
-          <h1>습관과 일정을 한 화면에</h1>
-          <p className="hero-date">{formatHeroDate(today)}</p>
+        <div className="hero-panel__top">
+          <div className="hero-copy">
+            <p className="eyebrow"><Sparkles size={16} />해빗 플로우</p>
+            <h1>습관과 일정을 한 화면에</h1>
+            <p className="hero-date">{formatHeroDate(today)}</p>
+          </div>
+
+          <button
+            type="button"
+            className="settings-button"
+            onClick={() => setIsSettingsOpen(true)}
+            aria-label="Open settings"
+            title="Settings"
+          >
+            <Settings size={18} />
+          </button>
         </div>
 
         <div className="tabs-bar" role="tablist" aria-label="메인 탭">
@@ -470,6 +498,14 @@ function App() {
           activeMonth={{ year: today.getFullYear(), month: today.getMonth() }}
           onClose={closeWeekDetailModal}
           onToggleHabitDate={toggleDashboardHabitDate}
+        />
+      )}
+
+      {isSettingsOpen && (
+        <SettingsPanel
+          selectedThemeId={selectedTheme.id}
+          onSelectTheme={selectTheme}
+          onClose={() => setIsSettingsOpen(false)}
         />
       )}
     </main>

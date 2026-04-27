@@ -50,7 +50,7 @@ export default function DailyHabitsGrid({
   const weeks = getMonthWeeks(year, month)
   const weekStartDates = new Set(weeks.map((week) => week.dates[0]).filter(Boolean))
   const dateColumns = dates.map((dateKey) => getDateMeta(dateKey, todayKey, selectedDateKey, weekStartDates))
-  const gridTemplateColumns = `220px 74px repeat(${dates.length}, 28px)`
+  const gridTemplateColumns = `minmax(112px, 1.35fr) minmax(36px, 0.42fr) repeat(${dates.length}, minmax(12px, 1fr))`
 
   return (
     <section className="dash-panel dash-panel--habits-grid">
