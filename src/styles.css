@@ -2471,6 +2471,10 @@ textarea {
   align-content: start;
 }
 
+.right-stats-panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .dash-panel {
   border: 1px solid rgba(134, 255, 93, 0.14);
   border-radius: 8px;
@@ -2939,54 +2943,101 @@ textarea {
 .monthly-donut-wrap {
   display: grid;
   place-items: center;
-  padding: 14px 12px 18px;
+  padding: 12px 12px 10px;
 }
 
 .monthly-donut {
   display: grid;
   place-items: center;
-  width: 128px;
-  height: 128px;
+  width: 118px;
+  height: 118px;
   border-radius: 999px;
-  box-shadow: 0 0 22px rgba(134, 255, 93, 0.15);
+  box-shadow:
+    0 0 22px rgba(134, 255, 93, 0.18),
+    inset 0 0 14px rgba(134, 255, 93, 0.08);
+}
+
+.monthly-donut--complete {
+  box-shadow:
+    0 0 28px rgba(134, 255, 93, 0.38),
+    0 0 48px rgba(134, 255, 93, 0.12),
+    inset 0 0 16px rgba(134, 255, 93, 0.1);
 }
 
 .monthly-donut > div {
   display: grid;
   place-items: center;
-  width: 88px;
-  height: 88px;
+  width: 78px;
+  height: 78px;
   border-radius: inherit;
   background: #060806;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.8);
 }
 
 .monthly-donut strong {
   color: #ffffff;
-  font-size: 1.3rem;
+  font-size: 1.28rem;
+  line-height: 1;
 }
 
 .monthly-donut span {
-  color: #a8b2a5;
-  font-size: 0.72rem;
+  color: #86ff5d;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.monthly-donut-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.monthly-donut-meta span {
+  display: grid;
+  gap: 2px;
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #9da89b;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+}
+
+.monthly-donut-meta b {
+  color: #86ff5d;
+  font-size: 1rem;
+}
+
+.monthly-donut-meta span:not(.is-clear):last-child b {
+  color: #ff634d;
+}
+
+.monthly-donut-meta .is-clear b {
+  color: #86ff5d;
 }
 
 .top-habits-list,
 .overall-progress-table {
-  padding: 0 12px 12px;
+  padding: 0 10px 10px;
 }
 
 .top-habit-row {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 34px;
+  grid-template-columns: 22px minmax(0, 1fr) 34px;
   align-items: center;
-  gap: 8px;
-  min-height: 34px;
+  gap: 7px;
+  min-height: 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.055);
 }
 
-.top-habit-row span {
+.top-habit-rank {
   color: #7f897d;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
+  font-weight: 900;
 }
 
 .top-habit-row strong {
@@ -2995,44 +3046,55 @@ textarea {
   min-width: 0;
   overflow: hidden;
   color: #ffffff;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .top-habit-row b {
   color: #55ef59;
+  font-size: 0.82rem;
   text-align: right;
+}
+
+.top-habit-row--best {
+  background: linear-gradient(90deg, rgba(134, 255, 93, 0.08), transparent);
+}
+
+.top-habit-row--best b,
+.top-habit-row--best strong {
+  color: #86ff5d;
 }
 
 .overall-progress-table__head,
 .overall-progress-row {
   display: grid;
-  grid-template-columns: 38px 38px 42px minmax(70px, 1fr);
-  gap: 7px;
+  grid-template-columns: 34px 34px 42px minmax(58px, 1fr);
+  gap: 6px;
   align-items: center;
 }
 
 .overall-progress-table__head {
-  min-height: 30px;
+  min-height: 28px;
   color: #8b9589;
-  font-size: 0.64rem;
+  font-size: 0.6rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .overall-progress-row {
-  min-height: 32px;
+  min-height: 30px;
   border-top: 1px solid rgba(255, 255, 255, 0.055);
   color: #ffffff;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .overall-progress-row i {
   display: block;
-  height: 10px;
+  height: 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.09);
   overflow: hidden;
 }
 
@@ -3041,6 +3103,20 @@ textarea {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #36d44d, #86ff5d);
+  box-shadow: 0 0 8px rgba(134, 255, 93, 0.24);
+}
+
+.overall-progress-row--complete {
+  background: linear-gradient(90deg, rgba(134, 255, 93, 0.08), transparent);
+}
+
+.overall-progress-row--complete i b {
+  background: linear-gradient(90deg, #86ff5d, #d8ffc2);
+  box-shadow: 0 0 12px rgba(134, 255, 93, 0.46);
+}
+
+.overall-percent {
+  color: #ffffff;
 }
 
 .dashboard-empty {
