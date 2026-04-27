@@ -4073,3 +4073,299 @@ button,
     gap: 9px;
   }
 }
+
+/* Responsive dashboard layout */
+@media (min-width: 1201px) {
+  .monthly-dashboard {
+    grid-template-columns: minmax(170px, 0.68fr) minmax(0, 3.25fr) minmax(230px, 0.92fr);
+    align-items: start;
+  }
+
+  .monthly-dashboard__left,
+  .monthly-dashboard__right {
+    position: sticky;
+    top: 14px;
+  }
+
+  .dash-panel--chart {
+    min-height: 232px;
+  }
+
+  .dash-panel--habits-grid {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+  .app-shell {
+    width: min(100%, 1040px);
+  }
+
+  .monthly-dashboard {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .monthly-dashboard__left,
+  .monthly-dashboard__main,
+  .monthly-dashboard__right {
+    min-width: 0;
+  }
+
+  .left-control-panel {
+    grid-template-columns: minmax(160px, 0.8fr) repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .tracker-brand {
+    grid-column: auto;
+  }
+
+  .control-grid {
+    grid-column: span 2;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .control-block--accent,
+  .dashboard-add-habit-button {
+    grid-column: auto;
+  }
+
+  .right-stats-panel {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(220px, 1fr) minmax(260px, 1.1fr);
+  }
+
+  .daily-habits-scroll,
+  .dashboard-chart__canvas {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    width: 100%;
+    padding: 10px 10px 28px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.38rem, 8vw, 2.1rem);
+    line-height: 1.05;
+  }
+
+  .hero-panel {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .tabs-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .tab-chip {
+    min-height: 42px;
+    padding-inline: 6px;
+    font-size: 0.78rem;
+  }
+
+  .monthly-dashboard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .monthly-dashboard__main,
+  .monthly-dashboard__right {
+    display: contents;
+  }
+
+  .monthly-dashboard__left {
+    order: 1;
+    min-width: 0;
+  }
+
+  .stat-panel--donut {
+    order: 2;
+  }
+
+  .dash-panel--chart {
+    order: 3;
+  }
+
+  .month-overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-panel:has(.month-overview-grid) {
+    order: 4;
+  }
+
+  .dash-panel--habits-grid {
+    order: 5;
+  }
+
+  .stat-panel--overall {
+    order: 6;
+  }
+
+  .stat-panel--top {
+    order: 7;
+  }
+
+  .left-control-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .tracker-brand,
+  .control-block--accent,
+  .dashboard-add-habit-button {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-add-habit-button {
+    position: sticky;
+    top: 94px;
+    z-index: 19;
+    min-height: 48px;
+  }
+
+  .control-block,
+  .control-grid > div {
+    min-width: 0;
+    padding: 9px;
+  }
+
+  .control-block strong,
+  .control-grid strong {
+    overflow-wrap: anywhere;
+    font-size: 0.82rem;
+  }
+
+  .control-grid {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-panel__head {
+    gap: 8px;
+  }
+
+  .dash-panel__head strong {
+    font-size: 0.8rem;
+  }
+
+  .chart-rate-summary b {
+    font-size: 0.86rem;
+  }
+
+  .dashboard-chart {
+    padding: 8px 8px 10px;
+  }
+
+  .dashboard-chart svg {
+    min-width: 500px;
+    height: 116px;
+  }
+
+  .dashboard-chart__labels {
+    min-width: 500px;
+  }
+
+  .daily-habits-scroll,
+  .dashboard-chart__canvas,
+  .week-detail-board {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .daily-habits-table {
+    grid-auto-rows: minmax(30px, auto);
+  }
+
+  .daily-date-head {
+    min-height: 40px;
+  }
+
+  .daily-habits-goal {
+    left: 220px;
+  }
+
+  .monthly-donut-meta,
+  .overall-progress-table,
+  .top-habits-list {
+    padding-inline: 10px;
+  }
+
+  .modal-overlay {
+    align-items: start;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .habit-modal,
+  .week-detail-modal {
+    width: min(100%, 560px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .habit-modal__head {
+    min-height: 58px;
+    padding-block: 14px;
+  }
+
+  .habit-modal__head h2 {
+    font-size: 1rem;
+  }
+
+  .modal-field input,
+  .modal-field select,
+  .modal-cancel-button,
+  .modal-save-button {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 430px) {
+  .tabs-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .left-control-panel,
+  .control-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .daily-habits-table {
+    grid-template-columns: 176px 58px repeat(31, 24px) !important;
+  }
+
+  .daily-habits-goal {
+    left: 176px;
+  }
+
+  .daily-habit-name {
+    font-size: 0.72rem;
+  }
+
+  .dashboard-chart svg,
+  .dashboard-chart__labels {
+    min-width: 460px;
+  }
+
+  .overall-progress-table__head,
+  .overall-progress-row {
+    grid-template-columns: 34px 34px 38px minmax(74px, 1fr);
+  }
+
+  .modal-overlay {
+    padding: 8px;
+  }
+
+  .habit-modal,
+  .week-detail-modal {
+    max-height: calc(100dvh - 16px);
+  }
+}
