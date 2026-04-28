@@ -9604,3 +9604,249 @@ body {
     min-height: 118px;
   }
 }
+
+/* Final mobile safety pass: keep dense app surfaces usable on 360px-430px screens. */
+@media (max-width: 640px) {
+  *,
+  *::before,
+  *::after {
+    min-width: 0;
+  }
+
+  .app-shell {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .hero-panel,
+  .panel,
+  .mini-panel,
+  .dash-panel,
+  .home-section-card,
+  .planner-home__header,
+  .quick-habit-card,
+  .habit-card,
+  .todo-card,
+  .manage-row,
+  .slime-status-card,
+  .slime-growth-panel,
+  .settings-section {
+    max-width: 100%;
+  }
+
+  .hero-panel,
+  .panel,
+  .mini-panel {
+    backdrop-filter: none;
+  }
+
+  .hero-panel__top,
+  .dashboard-home__header,
+  .section-header,
+  .schedule-toolbar,
+  .schedule-toolbar__title,
+  .schedule-head,
+  .habit-title-row,
+  .todo-card__head,
+  .slime-status-card__head,
+  .settings-section__head {
+    min-width: 0;
+  }
+
+  .hero-copy,
+  .dashboard-home__header > div,
+  .section-header > div,
+  .schedule-toolbar__title,
+  .habit-title-group,
+  .todo-card__body,
+  .manage-row__body,
+  .slime-status-card__head > div,
+  .settings-section__head > div {
+    min-width: 0;
+  }
+
+  .hero-copy h1,
+  .section-header h2,
+  .dashboard-home__header h2,
+  .planner-home__header h2,
+  .schedule-toolbar__title h2,
+  .habit-title-group strong,
+  .todo-card__head strong,
+  .manage-row strong,
+  .slime-status-card__head strong,
+  .settings-panel__head h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .field,
+  .modal-field,
+  .compact-field,
+  .quick-field,
+  .schedule-event-form .field {
+    min-width: 0;
+  }
+
+  .field input,
+  .field select,
+  .field textarea,
+  .modal-field input,
+  .modal-field select,
+  .modal-field textarea,
+  .compact-field input,
+  .quick-field input,
+  .schedule-event-form input,
+  .schedule-event-form select,
+  .schedule-event-form textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .modal-overlay,
+  .schedule-modal-overlay,
+  .evolution-tree-overlay,
+  .settings-overlay {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 100vw;
+    padding: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .habit-modal,
+  .habit-grid-log-modal,
+  .schedule-event-modal,
+  .evolution-tree-modal {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .habit-modal__form,
+  .schedule-event-form,
+  .evolution-tree-modal__body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .habit-modal__actions,
+  .habit-grid-log-actions,
+  .schedule-event-modal__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, transparent, var(--color-surface) 22%);
+  }
+
+  .daily-habits-scroll,
+  .weekly-grid-scroll,
+  .dashboard-chart__canvas,
+  .calendar-grid-wrap,
+  .table-wrap {
+    border-radius: 10px;
+    scrollbar-width: thin;
+  }
+
+  .dash-panel--habits-grid .habit-grid-cell,
+  .dash-panel--habits-grid .daily-date-head {
+    touch-action: manipulation;
+  }
+
+  .weekly-grid-shell {
+    max-width: 100%;
+  }
+
+  .weekly-grid-scroll {
+    border: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-bg) 72%, var(--color-surface));
+  }
+
+  .weekly-grid__corner,
+  .weekly-grid__day-head,
+  .weekly-grid__time-axis {
+    position: sticky;
+  }
+
+  .weekly-schedule-block {
+    overflow: hidden;
+  }
+
+  .weekly-schedule-block strong,
+  .weekly-schedule-block span,
+  .weekly-schedule-block em,
+  .weekly-schedule-block__link,
+  .weekly-schedule-block__repeat {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .slime-debug-section,
+  .debug-field,
+  .debug-button-row,
+  .settings-data-actions,
+  .theme-card,
+  .evolution-node-card {
+    min-width: 0;
+  }
+
+  .debug-field {
+    display: grid;
+    gap: 5px;
+  }
+
+  .settings-panel {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-copy h1 {
+    font-size: clamp(1.46rem, 9vw, 1.88rem);
+  }
+
+  .mobile-bottom-nav__item span {
+    font-size: 0.58rem;
+  }
+
+  .mobile-bottom-nav__item svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .habit-modal__head,
+  .schedule-event-modal__head,
+  .evolution-tree-modal__head,
+  .settings-panel__head {
+    padding-inline: 10px;
+  }
+
+  .habit-modal__form,
+  .schedule-event-form,
+  .evolution-tree-modal__body,
+  .settings-section {
+    padding-inline: 10px;
+  }
+
+  .weekly-grid-scroll {
+    margin-inline: -2px;
+  }
+
+  .weekly-schedule-block {
+    min-height: 38px;
+    padding: 5px 6px;
+  }
+
+  .weekly-schedule-block strong {
+    font-size: 0.7rem;
+  }
+
+  .weekly-schedule-block span {
+    font-size: 0.57rem;
+  }
+}
