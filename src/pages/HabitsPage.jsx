@@ -63,7 +63,7 @@ export default function HabitsPage({ habits, form, habitErrors, quickSettings, u
               if (event.key === 'Enter' || event.key === ' ') onEditHabit?.(habit)
             }}>
               <span className="overview-dot" style={{ backgroundColor: habit.color }} />
-              <div><strong><span className="habit-emoji" aria-hidden="true">{getHabitEmoji(habit)}</span>{getHabitDisplayName(habit)}</strong><span>{HABIT_TYPES.find((item) => item.value === habit.type)?.label} ? {getHabitMonthlyGoalLabel(habit)} ? {getHabitGoalLabel(habit)}</span></div>
+              <div><strong><span className="habit-emoji" aria-hidden="true">{getHabitEmoji(habit)}</span>{getHabitDisplayName(habit)}</strong><span>{HABIT_TYPES.find((item) => item.value === habit.type)?.label} · {getHabitMonthlyGoalLabel(habit)} · {getHabitGoalLabel(habit)}</span></div>
               <button type="button" className="icon-danger-button" onClick={(event) => {
                 event.stopPropagation()
                 deleteHabit(habit.id)

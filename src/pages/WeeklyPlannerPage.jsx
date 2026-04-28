@@ -4,7 +4,7 @@ import ScheduleEventModal from '../components/schedule/ScheduleEventModal'
 import WeeklyScheduleGrid from '../components/schedule/WeeklyScheduleGrid'
 import { SCHEDULE_STORAGE_KEY } from '../constants/scheduleConstants'
 import { createDefaultScheduleEvent, getScheduleEventsForWeek, getWeekDays, minutesToTime, normalizeScheduleEvents } from '../utils/scheduleUtils'
-import { getDateKey } from '../utils/dateUtils'
+import { getDateKey, parseDateKey } from '../utils/dateUtils'
 
 export default function WeeklyPlannerPage({ schedules = [], habits = [], todos = [] }) {
   const [anchorDate, setAnchorDate] = useState(() => new Date())
@@ -27,6 +27,11 @@ export default function WeeklyPlannerPage({ schedules = [], habits = [], todos =
 
   function returnToToday() {
     setAnchorDate(new Date())
+  }
+
+  function selectAnchorDate(dateKey) {
+    if (!dateKey) return
+    setAnchorDate(parseDateKey(dateKey))
   }
 
   function openAddSchedule(partial = {}) {
@@ -97,6 +102,8 @@ export default function WeeklyPlannerPage({ schedules = [], habits = [], todos =
         onPreviousWeek={() => moveWeek(-1)}
         onNextWeek={() => moveWeek(1)}
         onToday={returnToToday}
+        selectedDateKey={getDateKey(anchorDate)}
+        onSelectDate={selectAnchorDate}
         onAddSchedule={() => openAddSchedule()}
       />
       <WeeklyScheduleGrid

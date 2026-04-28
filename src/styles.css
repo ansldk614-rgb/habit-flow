@@ -5617,7 +5617,10 @@ button,
 
 .settings-panel {
   width: min(420px, 100%);
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-left: 1px solid var(--color-border-strong);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--color-surface-alt) 96%, transparent), color-mix(in srgb, var(--color-bg) 98%, transparent)),
@@ -5626,6 +5629,9 @@ button,
     -24px 0 70px rgba(0, 0, 0, 0.5),
     inset 1px 0 0 color-mix(in srgb, var(--color-accent) 8%, transparent);
   animation: settings-slide-in 160ms ease-out;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 54%, transparent) transparent;
+  scrollbar-width: thin;
 }
 
 .settings-panel__head {
@@ -7286,6 +7292,14 @@ body {
   min-height: 40px;
   border-radius: var(--compact-radius);
   padding-inline: 12px;
+}
+
+.schedule-date-picker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .weekly-grid-shell {
