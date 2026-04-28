@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Settings, Sparkles } from 'lucide-react'
+import { CalendarDays, ClipboardList, Home, ListChecks, Settings, Smile, Sparkles } from 'lucide-react'
 import { COLOR_OPTIONS, QUICK_HABITS, TABS } from './constants/habitConstants'
 import { applyTheme, getStoredThemeId, getThemeById, saveThemeId } from './constants/themeConstants'
 import HabitModal from './components/modals/HabitModal'
@@ -31,6 +31,14 @@ import { countTodosByDate, createDefaultTodo, getTodayTodos, normalizeTodo } fro
 const PERIOD_MODE_STORAGE_KEY = 'habit-flow-period-mode'
 const DEVELOPER_MODE_STORAGE_KEY = 'habitFlowDeveloperMode'
 const PERIOD_MODES = new Set(['recent', 'month'])
+const MOBILE_NAV_ITEMS = [
+  { id: 'home', label: 'Home', icon: Home, type: 'tab' },
+  { id: 'habits', label: 'Habits', icon: ListChecks, type: 'tab' },
+  { id: 'records', label: 'Today', icon: ClipboardList, type: 'tab' },
+  { id: 'weeklyPlanner', label: 'Weekly', icon: CalendarDays, type: 'tab' },
+  { id: 'companion', label: 'Slime', icon: Smile, type: 'tab' },
+  { id: 'settings', label: 'Settings', icon: Settings, type: 'settings' },
+]
 
 function getStoredPeriodMode() {
   if (typeof window === 'undefined') {
@@ -646,6 +654,33 @@ function App() {
           onClose={() => setIsSettingsOpen(false)}
         />
       )}
+
+      <nav className="mobile-bottom-nav" aria-label="Mobile primary navigation">
+        {MOBILE_NAV_ITEMS.map((item) => {
+          const Icon = item.icon
+          const isActive = item.type === 'tab' ? activeTab === item.id : isSettingsOpen
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`mobile-bottom-nav__item ${isActive ? 'mobile-bottom-nav__item--active' : ''}`}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              onClick={() => {
+                if (item.type === 'settings') {
+                  setIsSettingsOpen(true)
+                  return
+                }
+
+                setActiveTab(item.id)
+              }}
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </button>
+          )
+        })}
+      </nav>
     </main>
   )
 }

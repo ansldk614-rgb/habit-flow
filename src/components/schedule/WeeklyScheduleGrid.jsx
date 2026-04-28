@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { SCHEDULE_TIME_GRID } from '../../constants/scheduleConstants'
 import ScheduleEventBlock from './ScheduleEventBlock'
 import { getEventsForDay, getEventTopAndHeight, getTimeSlots, timeToMinutes } from '../../utils/scheduleUtils'
@@ -83,11 +84,25 @@ function getOverlapStyle(layout) {
 }
 
 export default function WeeklyScheduleGrid({ weekDays, schedules = [], habits = [], todos = [], onScheduleClick, onSlotClick }) {
+  const scrollRef = useRef(null)
   const { startHour, endHour, slotMinutes } = SCHEDULE_TIME_GRID
   const timeSlots = getTimeSlots(startHour, endHour, slotMinutes)
   const gridHeight = (timeSlots.length - 1) * SLOT_HEIGHT
   const currentLineTop = getCurrentTimeLineTop(startHour, endHour, slotMinutes)
   const hasSchedules = schedules.length > 0
+  const todayIndex = weekDays.findIndex((day) => day.isToday)
+
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller || todayIndex < 0 || window.innerWidth > 720) return
+
+    const timeAxisWidth = 50
+    const dayWidth = Math.max(1, (scroller.scrollWidth - timeAxisWidth) / Math.max(1, weekDays.length))
+    scroller.scrollTo({
+      left: Math.max(0, timeAxisWidth + dayWidth * todayIndex - dayWidth * 0.5),
+      behavior: 'smooth',
+    })
+  }, [todayIndex, weekDays.length])
 
   return (
     <div className="weekly-grid-shell">
@@ -95,7 +110,7 @@ export default function WeeklyScheduleGrid({ weekDays, schedules = [], habits = 
         <p className="weekly-grid-empty">일정을 추가해서 이번 주 루틴을 계획해보세요.</p>
       ) : null}
 
-      <div className="weekly-grid-scroll" role="region" aria-label="주간 시간표">
+      <div ref={scrollRef} className="weekly-grid-scroll" role="region" aria-label="Weekly schedule grid">
         <div className="weekly-grid" style={{ '--schedule-grid-height': `${gridHeight}px`, '--schedule-slot-height': `${SLOT_HEIGHT}px` }}>
           <div className="weekly-grid__corner" />
 
