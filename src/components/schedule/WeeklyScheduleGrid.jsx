@@ -2,7 +2,7 @@ import { SCHEDULE_TIME_GRID } from '../../constants/scheduleConstants'
 import ScheduleEventBlock from './ScheduleEventBlock'
 import { getEventsForDay, getEventTopAndHeight, getTimeSlots, timeToMinutes } from '../../utils/scheduleUtils'
 
-const SLOT_HEIGHT = 24
+const SLOT_HEIGHT = 36
 
 function getCurrentTimeLineTop(startHour, endHour, slotMinutes) {
   const now = new Date()
@@ -152,7 +152,7 @@ export default function WeeklyScheduleGrid({ weekDays, schedules = [], habits = 
                       key={event.id}
                       style={{
                         top: `${position.top * SLOT_HEIGHT}px`,
-                        height: `${Math.max(position.height * SLOT_HEIGHT - 3, 22)}px`,
+                        height: `${Math.max(position.height * SLOT_HEIGHT - 5, 34)}px`,
                         ...getOverlapStyle(overlapLayout),
                       }}
                       isConflict={overlapLayout?.isConflict}

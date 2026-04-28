@@ -38,6 +38,7 @@ export default function HomePage({
   onPeriodModeChange,
   onSelectDate,
   onToggleHabitDate,
+  onUpdateHabitLog,
   onEditHabit,
   onAddHabit,
   onOpenWeekDetail,
@@ -108,6 +109,7 @@ export default function HomePage({
             selectedDateKey={selectedDateKey}
             onSelectDate={onSelectDate}
             onToggleHabitDate={onToggleHabitDate}
+            onUpdateHabitLog={onUpdateHabitLog}
             onEditHabit={onEditHabit}
           />
         </>

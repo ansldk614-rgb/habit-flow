@@ -41,7 +41,13 @@ function getStoredPeriodMode() {
 }
 
 function getQuickHabitInitialState() {
-  return Object.fromEntries(QUICK_HABITS.map((habit) => [habit.id, { ...habit.defaults }]))
+  const defaultsById = {
+    wake: [1, 2, 3, 4, 5],
+    workout: [1, 3, 5],
+    study: [1, 2, 3, 4, 5],
+    reading: [0, 1, 2, 3, 4, 5, 6],
+  }
+  return Object.fromEntries(QUICK_HABITS.map((habit) => [habit.id, { ...habit.defaults, activeDays: habit.defaults?.activeDays ?? defaultsById[habit.id] ?? [1, 2, 3, 4, 5] }]))
 }
 
 function createInitialHabitForm() {
@@ -55,6 +61,7 @@ function createInitialHabitForm() {
     targetVolume: 5000,
     targetMinutes: 90,
     targetPercent: 100,
+    goal: 20,
   }
 }
 
@@ -80,8 +87,8 @@ function App() {
   const todayKey = getDateKey(today)
   const selectedDate = parseDateKey(selectedDateKey)
   const calendarDays = buildCalendarDays(calendarAnchorDate, habits, completions, todayKey, selectedDateKey)
-  const selectedHabits = habits.filter((habit) => isHabitScheduledForDate(habit, selectedDateKey))
-  const todayHabits = habits.filter((habit) => isHabitScheduledForDate(habit, todayKey))
+  const selectedHabits = habits.filter((habit) => isHabitScheduledForDate(habit, selectedDateKey) || completions[selectedDateKey]?.[habit.id])
+  const todayHabits = habits.filter((habit) => isHabitScheduledForDate(habit, todayKey) || completions[todayKey]?.[habit.id])
   const todayRate = calculateDayRate(habits, completions, todayKey)
   const weeklyRate = calculateOverallWeeklyRate(habits, completions, today)
   const matrixDates = enumeratePastDates(35, today).reverse()
@@ -152,6 +159,23 @@ function App() {
     }))
   }
 
+  function toggleQuickActiveDay(templateId, day) {
+    setQuickSettings((current) => {
+      const settings = current[templateId] ?? {}
+      const activeDays = Array.isArray(settings.activeDays) ? settings.activeDays : [1, 2, 3, 4, 5]
+      const exists = activeDays.includes(day)
+      const nextDays = exists ? activeDays.filter((item) => item !== day) : [...activeDays, day]
+      if (nextDays.length === 0) return current
+      return {
+        ...current,
+        [templateId]: {
+          ...settings,
+          activeDays: nextDays.sort((left, right) => left - right),
+        },
+      }
+    })
+  }
+
   function updateEventFormField(field, value) {
     setEventForm((current) => ({ ...current, [field]: value }))
     setEventErrors((current) => ({
@@ -195,6 +219,7 @@ function App() {
     const errors = {}
     if (!habitForm.name.trim()) errors.name = '습관 이름을 입력해 주세요.'
     if (habitForm.days.length === 0) errors.days = '반복 요일을 최소 1개 선택해 주세요.'
+    if (safeNumber(habitForm.goal) < 1) errors.goal = 'Monthly goal must be at least 1.'
     if (habitForm.type === 'wake' && !habitForm.targetTime) errors.targetTime = '목표 기상 시간을 선택해 주세요.'
     if (habitForm.type === 'workout' && safeNumber(habitForm.targetVolume) <= 0) errors.targetVolume = '목표 볼륨은 1 이상이어야 합니다.'
     if (habitForm.type === 'study' && safeNumber(habitForm.targetMinutes) <= 0) errors.targetMinutes = '목표 공부 시간은 1분 이상이어야 합니다.'
@@ -247,6 +272,9 @@ function App() {
       color: habitForm.color,
       emoji: habitForm.emoji || '🎯',
       days: habitForm.days,
+      activeDays: habitForm.days,
+      goal: Number(habitForm.goal) || 20,
+      monthlyGoal: Number(habitForm.goal) || 20,
       target: createTargetFromHabitForm(),
       createdAt: new Date().toISOString(),
     }
@@ -263,6 +291,7 @@ function App() {
     const targetVolume = Math.max(1, safeNumber(settings.targetVolume, template.defaults.targetVolume ?? 5000))
     const name = template.type === 'wake' ? '기상하기' : template.id === 'reading' ? '독서하기' : template.type === 'study' ? `${subject || '공부'} 공부하기` : template.name
     const target = template.type === 'wake' ? { targetTime } : template.type === 'workout' ? { targetVolume } : { targetMinutes }
+    const activeDays = Array.isArray(settings.activeDays) && settings.activeDays.length > 0 ? settings.activeDays : [1, 2, 3, 4, 5]
 
     const nextHabit = {
       id: createId(),
@@ -270,7 +299,10 @@ function App() {
       type: template.type,
       color: template.color,
       emoji: template.emoji,
-      days: [1, 2, 3, 4, 5],
+      days: activeDays,
+      activeDays,
+      goal: Math.max(1, activeDays.length * 4),
+      monthlyGoal: Math.max(1, activeDays.length * 4),
       target,
       createdAt: new Date().toISOString(),
     }
@@ -366,7 +398,11 @@ function App() {
             return {
               ...habit,
               ...values,
-              target: habit.type === values.type ? habit.target : createTargetForDashboardHabit(values.type),
+              target: values.target ?? (habit.type === values.type ? habit.target : createTargetForDashboardHabit(values.type)),
+              days: values.activeDays ?? values.days ?? habit.days,
+              activeDays: values.activeDays ?? values.days ?? habit.activeDays ?? habit.days,
+              goal: values.goal ?? values.monthlyGoal ?? habit.goal ?? habit.monthlyGoal,
+              monthlyGoal: values.goal ?? values.monthlyGoal ?? habit.goal ?? habit.monthlyGoal,
               updatedAt: now,
             }
           }),
@@ -376,8 +412,11 @@ function App() {
       const nextHabit = {
         id: createId(),
         ...values,
-        days: [1, 2, 3, 4, 5],
-        target: createTargetForDashboardHabit(values.type),
+        days: values.activeDays ?? [1, 2, 3, 4, 5],
+        activeDays: values.activeDays ?? [1, 2, 3, 4, 5],
+        goal: values.goal ?? values.monthlyGoal ?? 20,
+        monthlyGoal: values.goal ?? values.monthlyGoal ?? 20,
+        target: values.target ?? createTargetForDashboardHabit(values.type),
         createdAt: now,
         updatedAt: now,
       }
@@ -513,7 +552,7 @@ function App() {
       </section>
 
       {activeTab === 'home' && (
-        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
+        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onUpdateHabitLog={updateHabitLog} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
       )}
 
       {activeTab === 'calendar' && (
@@ -529,7 +568,7 @@ function App() {
       )}
 
       {activeTab === 'habits' && (
-        <HabitsPage habits={habits} form={habitForm} habitErrors={habitErrors} quickSettings={quickSettings} updateFormField={updateHabitFormField} updateQuickSetting={updateQuickSetting} toggleDay={toggleDay} handleCreateHabit={handleCreateHabit} resetHabitForm={resetHabitForm} addQuickHabit={addQuickHabit} deleteHabit={deleteHabit} />
+        <HabitsPage habits={habits} form={habitForm} habitErrors={habitErrors} quickSettings={quickSettings} updateFormField={updateHabitFormField} updateQuickSetting={updateQuickSetting} toggleQuickActiveDay={toggleQuickActiveDay} toggleDay={toggleDay} handleCreateHabit={handleCreateHabit} resetHabitForm={resetHabitForm} addQuickHabit={addQuickHabit} deleteHabit={deleteHabit} onEditHabit={openEditHabitModal} />
       )}
 
       {activeTab === 'records' && (

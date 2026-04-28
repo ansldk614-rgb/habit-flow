@@ -66,19 +66,7 @@ export function getHabitEmoji(habit) {
 }
 
 export function getHabitDisplayName(habit) {
-  const rawName = String(habit.name || '').trim()
-  const withoutLeadingTime = rawName.replace(/^\d{1,2}:\d{2}\s*/, '').trim()
-  const withoutTrailingDuration = withoutLeadingTime.replace(/\s*\d+\s*분$/, '').trim()
-
-  if (habit.type === 'wake') {
-    return withoutLeadingTime.includes('하기') ? withoutLeadingTime : '기상하기'
-  }
-
-  if (habit.type === 'study' && withoutTrailingDuration === '독서') {
-    return '독서하기'
-  }
-
-  return withoutTrailingDuration || rawName || '습관'
+  return String(habit?.name || habit?.title || habit?.label || '').trim() || 'Habit'
 }
 
 export function defaultTargetForType(type) {
@@ -108,19 +96,35 @@ export function defaultLogForType(type) {
 }
 
 export function migrateHabit(habit) {
-  if (habit.type) {
-    return {
-      ...habit,
-      emoji: habit.emoji || getDefaultEmoji(habit.type),
-      target: habit.target ?? defaultTargetForType(habit.type),
-    }
-  }
+  const type = habit?.type ?? habit?.category ?? 'custom'
+  const target = habit?.target ?? defaultTargetForType(type)
+  const activeDaysSource = Array.isArray(habit?.activeDays)
+    ? habit.activeDays
+    : Array.isArray(habit?.days)
+      ? habit.days
+      : Array.isArray(habit?.repeatDays)
+        ? habit.repeatDays
+        : [1, 2, 3, 4, 5]
+  const activeDays = [...new Set(activeDaysSource.map((day) => Number(day)).filter((day) => day >= 0 && day <= 6))]
+  const safeActiveDays = activeDays.length > 0 ? activeDays : [1, 2, 3, 4, 5]
+  const goal = Math.max(1, Math.round(safeNumber(habit?.goal ?? habit?.monthlyGoal, 20)))
 
   return {
     ...habit,
-    type: 'custom',
-    emoji: habit.emoji || '🎯',
-    target: { targetPercent: 100 },
+    name: getHabitDisplayName(habit),
+    type,
+    category: habit?.category ?? type,
+    emoji: habit?.emoji || getDefaultEmoji(type),
+    goal,
+    monthlyGoal: goal,
+    activeDays: safeActiveDays,
+    days: safeActiveDays,
+    target,
+    targetWakeTime: habit?.targetWakeTime ?? target.targetTime,
+    targetMinutes: habit?.targetMinutes ?? target.targetMinutes,
+    targetAmount: habit?.targetAmount ?? target.targetVolume,
+    unit: habit?.unit ?? (type === 'workout' ? 'volume' : type === 'study' ? 'min' : ''),
+    memo: habit?.memo ?? habit?.description ?? '',
   }
 }
 
@@ -254,7 +258,8 @@ export function getHabitDayIndex(dateKey) {
 }
 
 export function isHabitScheduledForDate(habit, dateKey) {
-  return habit.days.includes(getHabitDayIndex(dateKey))
+  const activeDays = Array.isArray(habit?.activeDays) ? habit.activeDays : habit?.days
+  return Array.isArray(activeDays) && activeDays.includes(getHabitDayIndex(dateKey))
 }
 
 export function calculateStreak(habit, completions, todayKey) {
@@ -494,16 +499,20 @@ export function getWeeklyBlocks(habits, completions, anchorDate = new Date()) {
 
 export function getHabitGoalLabel(habit) {
   if (habit.type === 'wake') {
-    return `${habit.target?.targetTime ?? '07:00'} 기상`
+    return `${habit.target?.targetTime ?? habit.targetWakeTime ?? '07:00'} wake`
   }
 
   if (habit.type === 'workout') {
-    return `볼륨 ${safeNumber(habit.target?.targetVolume, 0)}`
+    return `${safeNumber(habit.target?.targetVolume ?? habit.targetAmount, 0)} ${habit.unit || 'volume'}`
   }
 
   if (habit.type === 'study') {
-    return `${safeNumber(habit.target?.targetMinutes, 0)}분`
+    return `${safeNumber(habit.target?.targetMinutes ?? habit.targetMinutes, 0)} min`
   }
 
   return formatPercent(habit.target?.targetPercent)
+}
+
+export function getHabitMonthlyGoalLabel(habit) {
+  return `${formatCount(habit.goal ?? habit.monthlyGoal, 20)} / month`
 }

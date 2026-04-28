@@ -1,5 +1,5 @@
 import { Plus, X } from 'lucide-react'
-import { COLOR_OPTIONS, EMOJI_OPTIONS, HABIT_TYPES, WEEKDAY_LABELS } from '../constants/habitConstants'
+import { COLOR_OPTIONS, EMOJI_OPTIONS, HABIT_TYPES, WEEKDAY_OPTIONS } from '../constants/habitConstants'
 import { safeNumber } from '../utils/habitUtils'
 
 function FieldError({ message }) {
@@ -43,13 +43,18 @@ export default function HabitForm({ form, errors = {}, updateFormField, toggleDa
           ))}
         </div>
       </label>
+      <label className="field">
+        <span>Monthly Goal</span>
+        <input type="number" min="1" value={safeNumber(form.goal, 20)} onChange={(event) => updateFormField('goal', event.target.value)} aria-invalid={Boolean(errors.goal)} />
+        <FieldError message={errors.goal} />
+      </label>
 
       <div className="field">
-        <span>반복 요일</span>
+        <span>Active Days</span>
         <div className="day-grid">
-          {WEEKDAY_LABELS.map((label, index) => (
-            <button key={label} type="button" className={`day-chip ${form.days.includes(index) ? 'day-chip--active' : ''}`} onClick={() => toggleDay(index)}>
-              {label}
+          {WEEKDAY_OPTIONS.map((day) => (
+            <button key={day.value} type="button" className={`day-chip ${form.days.includes(day.value) ? 'day-chip--active' : ''}`} onClick={() => toggleDay(day.value)}>
+              {day.label}
             </button>
           ))}
         </div>
