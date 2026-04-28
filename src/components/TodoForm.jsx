@@ -7,7 +7,7 @@ function FieldError({ message }) {
 
 export default function TodoForm({ todoForm, errors = {}, updateTodoFormField, handleCreateTodo, onCancel }) {
   return (
-    <form className="habit-form" onSubmit={handleCreateTodo} noValidate>
+    <form className="habit-form todo-form-compact" onSubmit={handleCreateTodo} noValidate>
       <label className="field">
         <span>할 일 제목</span>
         <input type="text" value={todoForm.title} onChange={(event) => updateTodoFormField('title', event.target.value)} placeholder="예: 과제 제출하기" aria-invalid={Boolean(errors.title)} />
@@ -40,7 +40,7 @@ export default function TodoForm({ todoForm, errors = {}, updateTodoFormField, h
         <textarea className="memo-input memo-input--compact" value={todoForm.memo} onChange={(event) => updateTodoFormField('memo', event.target.value)} placeholder="필요한 내용을 적어두세요." />
       </label>
 
-      <div className="form-actions">
+      <div className="form-actions todo-form-compact__actions">
         <button className="secondary-button" type="button" onClick={onCancel}><X size={18} />취소</button>
         <button className="primary-button" type="submit"><Plus size={18} />할 일 추가</button>
       </div>

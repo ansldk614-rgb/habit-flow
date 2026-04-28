@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { ChevronDown, ChevronUp, Flame, Sparkles, Trash2, TrendingUp } from 'lucide-react'
-import { PROGRESS_STEPS } from '../constants/habitConstants'
+import { HABIT_TYPES, PROGRESS_STEPS } from '../constants/habitConstants'
 import {
   calculateHabitWeeklyRate,
   calculateStreak,
@@ -18,6 +19,8 @@ export default function HabitCard({ habit, completions, selectedDateKey, todayKe
   const HabitIcon = getHabitTypeIcon(habit.type)
   const log = getHabitLog(completions, selectedDateKey, habit)
   const metrics = getHabitMetrics(habit, log)
+  const typeLabel = HABIT_TYPES.find((item) => item.value === habit.type)?.label ?? habit.type
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   function nudgeCustomProgress(direction) {
     const currentProgress = getHabitLog(completions, selectedDateKey, habit).progressPercent
@@ -36,11 +39,17 @@ export default function HabitCard({ habit, completions, selectedDateKey, todayKe
             <HabitIcon size={18} />
             <span className="habit-emoji" aria-hidden="true">{getHabitEmoji(habit)}</span>
             <strong>{getHabitDisplayName(habit)}</strong>
+            <span className="habit-type-badge">{typeLabel}</span>
           </div>
-          <span className="progress-pill">{formatPercent(metrics.progressPercent)}</span>
-          <button type="button" className="icon-danger-button" onClick={() => deleteHabit(habit.id)} aria-label={`${habit.name} 삭제`} title="삭제">
-            <Trash2 size={16} />
-          </button>
+          <div className="habit-card-actions">
+            <span className="progress-pill">{formatPercent(metrics.progressPercent)}</span>
+            <button type="button" className="habit-detail-toggle" onClick={() => setIsDetailOpen((current) => !current)} aria-expanded={isDetailOpen} aria-label={`${habit.name} 세부 정보 ${isDetailOpen ? '닫기' : '열기'}`}>
+              {isDetailOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            <button type="button" className="icon-danger-button" onClick={() => deleteHabit(habit.id)} aria-label={`${habit.name} 삭제`} title="삭제">
+              <Trash2 size={15} />
+            </button>
+          </div>
         </div>
 
         <div className="habit-meta">
@@ -82,7 +91,7 @@ export default function HabitCard({ habit, completions, selectedDateKey, todayKe
             </div>
           )}
 
-          <p className="detail-text">{metrics.detailText}</p>
+          {isDetailOpen ? <p className="detail-text">{metrics.detailText}</p> : null}
         </div>
       </div>
     </article>

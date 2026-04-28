@@ -32,7 +32,7 @@ export default function TodosPage({ todos, todoForm, todoErrors, updateTodoFormF
 
   return (
     <>
-      <section className="panel">
+      <section className="panel todo-create-panel">
         <div className="section-header">
           <div>
             <p className="section-kicker">할 일 추가</p>

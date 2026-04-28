@@ -8,7 +8,7 @@ function FieldError({ message }) {
 
 export default function HabitForm({ form, errors = {}, updateFormField, toggleDay, handleCreateHabit, onCancel }) {
   return (
-    <form className="habit-form" onSubmit={handleCreateHabit} noValidate>
+    <form className="habit-form habit-form-compact" onSubmit={handleCreateHabit} noValidate>
       <label className="field">
         <span>습관 이름</span>
         <input type="text" value={form.name} onChange={(event) => updateFormField('name', event.target.value)} placeholder="예: 하체 운동" aria-invalid={Boolean(errors.name)} />
@@ -61,7 +61,7 @@ export default function HabitForm({ form, errors = {}, updateFormField, toggleDa
       {form.type === 'study' && <label className="field"><span>목표 공부 시간(분)</span><input type="number" min="1" value={safeNumber(form.targetMinutes, 90)} onChange={(event) => updateFormField('targetMinutes', event.target.value)} aria-invalid={Boolean(errors.targetMinutes)} /><FieldError message={errors.targetMinutes} /></label>}
       {form.type === 'custom' && <label className="field"><span>목표 퍼센트 기준</span><input type="number" min="1" max="100" value={safeNumber(form.targetPercent, 100)} onChange={(event) => updateFormField('targetPercent', event.target.value)} aria-invalid={Boolean(errors.targetPercent)} /><FieldError message={errors.targetPercent} /></label>}
 
-      <div className="form-actions">
+      <div className="form-actions habit-form-compact__actions">
         <button className="secondary-button" type="button" onClick={onCancel}><X size={18} />취소</button>
         <button className="primary-button" type="submit"><Plus size={18} />습관 추가</button>
       </div>
