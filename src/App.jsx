@@ -12,6 +12,7 @@ import HabitsPage from './pages/HabitsPage'
 import HomePage from './pages/HomePage'
 import RecordsPage from './pages/RecordsPage'
 import TodosPage from './pages/TodosPage'
+import WeeklyPlannerPage from './pages/WeeklyPlannerPage'
 import { enumeratePastDates, formatHeroDate, getDateKey, parseDateKey } from './utils/dateUtils'
 import {
   buildCalendarDays,
@@ -58,7 +59,7 @@ function createInitialHabitForm() {
 }
 
 function App() {
-  const [{ version, habits, completions, events, todos, companion, rewardedCompletions, settings }, setState] = useLocalStorage()
+  const [{ version, habits, completions, events, schedules, todos, companion, rewardedCompletions, settings }, setState] = useLocalStorage()
   const [activeTab, setActiveTab] = useState('home')
   const [periodMode, setPeriodMode] = useState(getStoredPeriodMode)
   const [selectedThemeId, setSelectedThemeId] = useState(getStoredThemeId)
@@ -519,6 +520,10 @@ function App() {
         <CalendarPage calendarDays={calendarDays} calendarAnchorDate={calendarAnchorDate} moveCalendarMonth={moveCalendarMonth} selectedDateKey={selectedDateKey} selectedDate={selectedDate} setSelectedDateKey={selectCalendarDate} completions={completions} selectedHabits={selectedHabits} events={events} todos={todos} eventCountsByDate={eventCountsByDate} todoCountsByDate={todoCountsByDate} eventForm={eventForm} eventErrors={eventErrors} updateEventFormField={updateEventFormField} handleCreateEvent={handleCreateEvent} resetEventForm={resetEventForm} deleteEvent={deleteEvent} />
       )}
 
+      {activeTab === 'weeklyPlanner' && (
+        <WeeklyPlannerPage schedules={schedules} habits={habits} todos={todos} />
+      )}
+
       {activeTab === 'todos' && (
         <TodosPage todos={todos} todoForm={todoForm} todoErrors={todoErrors} updateTodoFormField={updateTodoFormField} handleCreateTodo={handleCreateTodo} resetTodoForm={resetTodoForm} toggleTodoCompleted={toggleTodoCompleted} deleteTodo={deleteTodo} todayKey={todayKey} today={today} />
       )}
@@ -557,7 +562,7 @@ function App() {
         <SettingsPanel
           selectedThemeId={selectedTheme.id}
           periodMode={periodMode}
-          appData={{ version, habits, completions, events, todos, companion, rewardedCompletions, settings }}
+          appData={{ version, habits, completions, events, schedules, todos, companion, rewardedCompletions, settings }}
           onSelectTheme={selectTheme}
           onImportData={importAppData}
           onResetData={resetAppData}

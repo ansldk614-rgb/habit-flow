@@ -4,12 +4,14 @@ import { migrateHabit, normalizeSavedCompletions } from '../utils/habitUtils'
 import { normalizeEvents } from '../utils/eventUtils'
 import { normalizeTodos } from '../utils/todoUtils'
 import { createDefaultSlimeProfile, normalizeSlimeProfile } from '../utils/rpgUtils'
+import { normalizeScheduleEvents } from '../utils/scheduleUtils'
 
 export const fallbackState = {
   version: STORAGE_VERSION,
   habits: [],
   completions: {},
   events: [],
+  schedules: [],
   todos: [],
   companion: createDefaultSlimeProfile(),
   rewardedCompletions: {},
@@ -41,6 +43,7 @@ export function migrateStoredState(parsed) {
     habits,
     completions: normalizeSavedCompletions(ensureObject(source.completions), habitsById),
     events: normalizeEvents(source.events),
+    schedules: normalizeScheduleEvents(source.schedules),
     todos: normalizeTodos(source.todos),
     companion: normalizeSlimeProfile(source.companion),
     rewardedCompletions: normalizeRewardedCompletions(source.rewardedCompletions),

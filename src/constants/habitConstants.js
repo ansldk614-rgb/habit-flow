@@ -28,6 +28,7 @@ export const PROGRESS_STEPS = [0, 25, 50, 75, 100]
 export const TABS = [
   { id: 'home', label: '홈' },
   { id: 'calendar', label: '캘린더' },
+  { id: 'weeklyPlanner', label: '주간 시간표' },
   { id: 'todos', label: '할 일' },
   { id: 'habits', label: '습관 관리' },
   { id: 'records', label: '기록' },
