@@ -26,6 +26,11 @@ function isHabitDone(habit, completions, dateKey) {
   return safePercent(metrics.progressPercent) >= 100
 }
 
+function getHabitProgress(habit, completions, dateKey) {
+  const metrics = getHabitMetrics(habit, getHabitLog(ensureObject(completions), dateKey, habit))
+  return safePercent(metrics.progressPercent)
+}
+
 function getCompletedHabitCount(habits, completions, dateKey) {
   return getScheduledHabits(habits, dateKey).filter((habit) => isHabitDone(habit, completions, dateKey)).length
 }
@@ -71,8 +76,8 @@ export function calculateDailyCompletionRate(habits, completions, dateKey) {
     return 0
   }
 
-  const done = getCompletedHabitCount(scheduledHabits, completions, dateKey)
-  return safePercent((done / total) * 100)
+  const totalProgress = scheduledHabits.reduce((sum, habit) => sum + getHabitProgress(habit, completions, dateKey), 0)
+  return safePercent(totalProgress / total)
 }
 
 export function calculateWeeklyCompletionRate(habits, completions, weekDates) {
@@ -90,18 +95,21 @@ export function calculateMonthlyProgress(habits, completions, year, month) {
   const dates = getMonthDates(year, month)
   let done = 0
   let total = 0
+  let totalProgress = 0
 
   dates.forEach((dateKey) => {
     const scheduledHabits = getScheduledHabits(habits, dateKey)
     total += scheduledHabits.length
     done += getCompletedHabitCount(scheduledHabits, completions, dateKey)
+    totalProgress += scheduledHabits.reduce((sum, habit) => sum + getHabitProgress(habit, completions, dateKey), 0)
   })
 
+  const percent = total === 0 ? 0 : safePercent(totalProgress / total)
   return {
     done,
     total,
     left: Math.max(0, total - done),
-    percent: total === 0 ? 0 : safePercent((done / total) * 100),
+    percent,
   }
 }
 
@@ -155,12 +163,13 @@ export function getDailyChartData(habits, completions, year, month) {
     const scheduledHabits = getScheduledHabits(habits, dateKey)
     const done = getCompletedHabitCount(scheduledHabits, completions, dateKey)
     const total = scheduledHabits.length
+    const totalProgress = scheduledHabits.reduce((sum, habit) => sum + getHabitProgress(habit, completions, dateKey), 0)
 
     return {
       date: dateKey,
       dateKey,
       day: date.getDate(),
-      rate: total === 0 ? 0 : safePercent((done / total) * 100),
+      rate: total === 0 ? 0 : safePercent(totalProgress / total),
       done,
       total,
     }

@@ -6,12 +6,13 @@ const longDateFormatter = new Intl.DateTimeFormat('ko-KR', {
 })
 
 function getAverageRate(chartData) {
-  if (!chartData.length) {
+  const activeDays = chartData.filter((item) => Number(item.total) > 0)
+  if (!activeDays.length) {
     return 0
   }
 
-  const total = chartData.reduce((sum, item) => sum + safePercent(item.rate), 0)
-  return safePercent(total / chartData.length)
+  const total = activeDays.reduce((sum, item) => sum + safePercent(item.rate), 0)
+  return safePercent(total / activeDays.length)
 }
 
 function getPointCoordinates(chartData, width, height) {
@@ -184,8 +185,8 @@ export default function DailyCompletionChart({ chartData = [], caption = '' }) {
                     {getRelativeLabel(getPointKey(hoveredPoint)) ? <span>{getRelativeLabel(getPointKey(hoveredPoint))}</span> : null}
                   </div>
                   <span>{longDateFormatter.format(new Date(`${getPointKey(hoveredPoint)}T00:00:00`))}</span>
-                  <b>Completion Rate: {formatPercent(hoveredPoint.rate)}</b>
-                  <small>Done: {formatCount(hoveredPoint.done)} / {formatCount(hoveredPoint.total)}</small>
+                  <b>Average Progress: {formatPercent(hoveredPoint.rate)}</b>
+                  <small>Completed: {formatCount(hoveredPoint.done)} / {formatCount(hoveredPoint.total)}</small>
                 </div>
               ) : null}
               </div>

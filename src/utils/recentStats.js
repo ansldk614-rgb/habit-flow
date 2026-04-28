@@ -46,6 +46,12 @@ function isHabitDone(habit, completions, dateKey) {
   return safePercent(metrics.progressPercent) >= 100
 }
 
+function getHabitProgress(habit, completions, dateKey) {
+  const log = getHabitLog(ensureObject(completions), dateKey, habit)
+  const metrics = getHabitMetrics(habit, log)
+  return safePercent(metrics.progressPercent)
+}
+
 function getRecentHabitScheduledDates(habit, today = new Date()) {
   return getRecentFourWeekDates(today).filter((dateKey) => isHabitScheduledForDate(habit, dateKey))
 }
@@ -88,11 +94,12 @@ export function calculateRecentDailyCompletionRate(habits, completions, dateKey)
   const scheduledHabits = ensureArray(habits).filter((habit) => isHabitScheduledForDate(habit, dateKey))
   const total = scheduledHabits.length
   const done = scheduledHabits.filter((habit) => isHabitDone(habit, completions, dateKey)).length
+  const totalProgress = scheduledHabits.reduce((sum, habit) => sum + getHabitProgress(habit, completions, dateKey), 0)
 
   return {
     done,
     total,
-    rate: total === 0 ? 0 : safePercent((done / total) * 100),
+    rate: total === 0 ? 0 : safePercent(totalProgress / total),
   }
 }
 
@@ -102,15 +109,17 @@ export function calculateRecentFourWeekProgress(habits, completions, today = new
       const daily = calculateRecentDailyCompletionRate(habits, completions, dateKey)
       const done = progress.done + daily.done
       const total = progress.total + daily.total
+      const totalProgress = progress.totalProgress + (daily.rate * daily.total)
 
       return {
         done,
         total,
         left: Math.max(0, total - done),
-        percent: total === 0 ? 0 : safePercent((done / total) * 100),
+        totalProgress,
+        percent: total === 0 ? 0 : safePercent(totalProgress / total),
       }
     },
-    { done: 0, total: 0, left: 0, percent: 0 },
+    { done: 0, total: 0, left: 0, percent: 0, totalProgress: 0 },
   )
 }
 
