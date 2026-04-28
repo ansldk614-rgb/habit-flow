@@ -60,7 +60,7 @@ function trimGrowthLog(entries) {
     .slice(0, 50)
 }
 
-function addGrowthLog(growthLog, entry) {
+function addGrowthLogEntryToList(growthLog, entry) {
   return trimGrowthLog([entry, ...ensureArray(growthLog)])
 }
 
@@ -92,6 +92,10 @@ export function normalizeSlimeProfile(profile) {
   const xp = Math.max(0, Math.floor(safeNumber(source.xp, DEFAULT_SLIME_PROFILE.xp)))
   const totalXp = Math.max(xp, Math.floor(safeNumber(source.totalXp, DEFAULT_SLIME_PROFILE.totalXp)))
   const evolutionAvailabilityTypes = new Set(EVOLUTION_MILESTONES.map((milestone) => milestone.type))
+  const validEvolutionStages = new Set(EVOLUTION_STAGES.map((stage) => stage.stage))
+  const storedEvolutionStage = typeof source.evolutionStage === 'string' && validEvolutionStages.has(source.evolutionStage)
+    ? source.evolutionStage
+    : getEvolutionStageByLevel(level)
   const storedEvolutionType = typeof source.evolutionType === 'string' ? source.evolutionType : null
   const unlockedRewards = new Set(ensureArray(source.unlockedRewards).filter((reward) => typeof reward === 'string'))
 
@@ -107,8 +111,11 @@ export function normalizeSlimeProfile(profile) {
     crystals: Math.max(0, Math.floor(safeNumber(source.crystals, DEFAULT_SLIME_PROFILE.crystals))),
     energy: Math.max(0, Math.min(maxEnergy, Math.floor(safeNumber(source.energy, DEFAULT_SLIME_PROFILE.energy)))),
     maxEnergy,
-    evolutionStage: getEvolutionStageByLevel(level),
+    evolutionStage: storedEvolutionStage,
     evolutionType: storedEvolutionType && !evolutionAvailabilityTypes.has(storedEvolutionType) ? storedEvolutionType : null,
+    classLine: typeof source.classLine === 'string' ? source.classLine : null,
+    branchLine: typeof source.branchLine === 'string' ? source.branchLine : null,
+    selectedEvolutionNodeId: typeof source.selectedEvolutionNodeId === 'string' ? source.selectedEvolutionNodeId : null,
     lastLevelUpAt: typeof source.lastLevelUpAt === 'string' ? source.lastLevelUpAt : null,
     unlockedRewards: [...unlockedRewards],
     growthLog: trimGrowthLog(source.growthLog),
@@ -147,7 +154,7 @@ export function applyXpAndLevelUp(profile, gainedXp) {
   let growthLog = [...nextProfile.growthLog]
 
   if (remainingXp > 0) {
-    growthLog = addGrowthLog(growthLog, createGrowthLogEntry('xp', `Gained ${remainingXp} XP.`, now))
+    growthLog = addGrowthLogEntryToList(growthLog, createGrowthLogEntry('xp', `Gained ${remainingXp} XP.`, now))
   }
 
   nextProfile.totalXp += remainingXp
@@ -158,30 +165,30 @@ export function applyXpAndLevelUp(profile, gainedXp) {
     nextProfile.level += 1
     levelUpCount += 1
     nextProfile.lastLevelUpAt = now
-    growthLog = addGrowthLog(growthLog, createGrowthLogEntry('levelUp', `Level ${nextProfile.level} reached! Your slime is getting softer.`, now))
+    growthLog = addGrowthLogEntryToList(growthLog, createGrowthLogEntry('levelUp', `Level ${nextProfile.level} reached! Your slime is getting softer.`, now))
 
     const levelRewardKey = `level-${nextProfile.level}-reward`
     if (!unlockedRewards.has(levelRewardKey)) {
       nextProfile.gold += 50
       unlockedRewards.add(levelRewardKey)
-      growthLog = addGrowthLog(growthLog, createGrowthLogEntry('reward', `Lv.${nextProfile.level} reward: +50 Gold.`, now))
+      growthLog = addGrowthLogEntryToList(growthLog, createGrowthLogEntry('reward', `Lv.${nextProfile.level} reward: +50 Gold.`, now))
     }
 
     const crystalRewardKey = `level-${nextProfile.level}-crystal-bonus`
     if (nextProfile.level % 10 === 0 && !unlockedRewards.has(crystalRewardKey)) {
       nextProfile.crystals += 5
       unlockedRewards.add(crystalRewardKey)
-      growthLog = addGrowthLog(growthLog, createGrowthLogEntry('reward', `Lv.${nextProfile.level} crystal bonus: +5 Crystal.`, now))
+      growthLog = addGrowthLogEntryToList(growthLog, createGrowthLogEntry('reward', `Lv.${nextProfile.level} crystal bonus: +5 Crystal.`, now))
     } else if (nextProfile.level % 5 === 0 && !unlockedRewards.has(crystalRewardKey)) {
       nextProfile.crystals += 2
       unlockedRewards.add(crystalRewardKey)
-      growthLog = addGrowthLog(growthLog, createGrowthLogEntry('reward', `Lv.${nextProfile.level} crystal bonus: +2 Crystal.`, now))
+      growthLog = addGrowthLogEntryToList(growthLog, createGrowthLogEntry('reward', `Lv.${nextProfile.level} crystal bonus: +2 Crystal.`, now))
     }
 
     const evolutionMilestone = EVOLUTION_MILESTONES.find((milestone) => milestone.level === nextProfile.level)
     if (evolutionMilestone && !unlockedRewards.has(evolutionMilestone.type)) {
       unlockedRewards.add(evolutionMilestone.type)
-      growthLog = addGrowthLog(growthLog, createGrowthLogEntry('evolution', `Lv.${nextProfile.level} reached! ${evolutionMilestone.label}.`, now))
+      growthLog = addGrowthLogEntryToList(growthLog, createGrowthLogEntry('evolution', `Lv.${nextProfile.level} reached! ${evolutionMilestone.label}.`, now))
     }
   }
 
@@ -206,11 +213,77 @@ export function applyHabitReward(profile, habit) {
     gold: safeNumber(nextProfile.gold) + reward.gold,
     crystals: safeNumber(nextProfile.crystals) + reward.crystals,
     energy: Math.min(maxEnergy, safeNumber(nextProfile.energy) + reward.energy),
-    growthLog: addGrowthLog(
+    growthLog: addGrowthLogEntryToList(
       nextProfile.growthLog,
       createGrowthLogEntry('reward', `${habitName} complete! +${reward.xp} XP, +${reward.gold} Gold, +${reward.energy} Energy`),
     ),
   })
+}
+
+export function addGrowthLog(profile, log) {
+  const current = normalizeSlimeProfile(profile)
+  const type = ['xp', 'levelUp', 'evolution', 'reward'].includes(log?.type) ? log.type : 'xp'
+  const message = String(log?.message ?? 'Debug growth event')
+  return normalizeSlimeProfile({
+    ...current,
+    growthLog: addGrowthLogEntryToList(current.growthLog, createGrowthLogEntry(type, message)),
+  })
+}
+
+export function applyDebugXp(profile, amount) {
+  return normalizeSlimeProfile(applyXpAndLevelUp(profile, Math.max(0, Math.floor(safeNumber(amount)))))
+}
+
+export function setDebugSlimeLevel(profile, level) {
+  const safeLevel = Math.max(1, Math.floor(safeNumber(level, 1)))
+  const current = normalizeSlimeProfile(profile)
+  return addGrowthLog({
+    ...current,
+    level: safeLevel,
+    xp: 0,
+    evolutionStage: getEvolutionStageByLevel(safeLevel),
+    lastLevelUpAt: new Date().toISOString(),
+  }, {
+    type: 'levelUp',
+    message: `Debug: level set to Lv.${safeLevel}.`,
+  })
+}
+
+export function updateSlimeCurrencies(profile, partialCurrencies = {}) {
+  const current = normalizeSlimeProfile(profile)
+  const maxEnergy = Math.max(1, Math.floor(safeNumber(partialCurrencies.maxEnergy, current.maxEnergy)))
+  return normalizeSlimeProfile({
+    ...current,
+    gold: Math.max(0, Math.floor(safeNumber(partialCurrencies.gold, current.gold))),
+    crystals: Math.max(0, Math.floor(safeNumber(partialCurrencies.crystals, current.crystals))),
+    maxEnergy,
+    energy: Math.max(0, Math.min(maxEnergy, Math.floor(safeNumber(partialCurrencies.energy, current.energy)))),
+  })
+}
+
+export function updateSlimeEvolutionDebug(profile, partialEvolution = {}) {
+  const current = normalizeSlimeProfile(profile)
+  const nextLevel = partialEvolution.level == null ? current.level : Math.max(1, Math.floor(safeNumber(partialEvolution.level, current.level)))
+  const nextStage = partialEvolution.evolutionStage || getEvolutionStageByLevel(nextLevel)
+  return addGrowthLog({
+    ...current,
+    level: nextLevel,
+    evolutionStage: nextStage,
+    classLine: partialEvolution.classLine === 'none' ? null : partialEvolution.classLine ?? current.classLine,
+    branchLine: partialEvolution.branchLine === 'none' ? null : partialEvolution.branchLine ?? current.branchLine,
+    selectedEvolutionNodeId: partialEvolution.selectedEvolutionNodeId === 'none' ? null : partialEvolution.selectedEvolutionNodeId ?? current.selectedEvolutionNodeId,
+  }, {
+    type: 'evolution',
+    message: 'Debug: evolution display updated.',
+  })
+}
+
+export function resetSlimeProfile() {
+  return createDefaultSlimeProfile()
+}
+
+export function clampSlimeProfile(profile) {
+  return normalizeSlimeProfile(profile)
 }
 
 export function getNextEvolutionInfo(profile) {

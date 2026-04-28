@@ -29,6 +29,7 @@ import { applyHabitReward, calculateRpgProfile } from './utils/rpgUtils'
 import { countTodosByDate, createDefaultTodo, getTodayTodos, normalizeTodo } from './utils/todoUtils'
 
 const PERIOD_MODE_STORAGE_KEY = 'habit-flow-period-mode'
+const DEVELOPER_MODE_STORAGE_KEY = 'habitFlowDeveloperMode'
 const PERIOD_MODES = new Set(['recent', 'month'])
 
 function getStoredPeriodMode() {
@@ -38,6 +39,14 @@ function getStoredPeriodMode() {
 
   const savedMode = window.localStorage.getItem(PERIOD_MODE_STORAGE_KEY)
   return PERIOD_MODES.has(savedMode) ? savedMode : 'recent'
+}
+
+function getStoredDeveloperMode() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.localStorage.getItem(DEVELOPER_MODE_STORAGE_KEY) === 'true'
 }
 
 function getQuickHabitInitialState() {
@@ -70,6 +79,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [periodMode, setPeriodMode] = useState(getStoredPeriodMode)
   const [selectedThemeId, setSelectedThemeId] = useState(getStoredThemeId)
+  const [developerMode, setDeveloperMode] = useState(getStoredDeveloperMode)
   const [habitForm, setHabitForm] = useState(createInitialHabitForm)
   const [habitErrors, setHabitErrors] = useState({})
   const [eventErrors, setEventErrors] = useState({})
@@ -107,6 +117,10 @@ function App() {
     window.localStorage.setItem(PERIOD_MODE_STORAGE_KEY, PERIOD_MODES.has(periodMode) ? periodMode : 'recent')
   }, [periodMode])
 
+  useEffect(() => {
+    window.localStorage.setItem(DEVELOPER_MODE_STORAGE_KEY, developerMode ? 'true' : 'false')
+  }, [developerMode])
+
   function selectTheme(theme) {
     const nextTheme = getThemeById(theme?.id)
     setSelectedThemeId(nextTheme.id)
@@ -133,6 +147,20 @@ function App() {
     applyTheme(defaultTheme)
     saveThemeId(defaultTheme.id)
     setPeriodMode('recent')
+  }
+
+  function updateSlimeProfile(updater) {
+    setState((current) => ({
+      ...current,
+      companion: typeof updater === 'function' ? updater(current.companion) : updater,
+    }))
+  }
+
+  function resetRewardHistory() {
+    setState((current) => ({
+      ...current,
+      rewardedCompletions: {},
+    }))
   }
 
   function toggleDay(day) {
@@ -575,7 +603,15 @@ function App() {
         <RecordsPage habits={habits} completions={completions} selectedDateKey={selectedDateKey} selectedDate={selectedDate} selectedHabits={selectedHabits} todayKey={todayKey} today={today} matrixDates={matrixDates} updateHabitLog={updateHabitLog} deleteHabit={deleteHabit} />
       )}
 
-      {activeTab === 'companion' && <CompanionPage rpgProfile={rpgProfile} />}
+      {activeTab === 'companion' && (
+        <CompanionPage
+          rpgProfile={rpgProfile}
+          developerMode={developerMode}
+          rewardedCompletions={rewardedCompletions}
+          onUpdateSlimeProfile={updateSlimeProfile}
+          onResetRewardHistory={resetRewardHistory}
+        />
+      )}
 
       {habitModal.isOpen && (
         <HabitModal
@@ -605,6 +641,8 @@ function App() {
           onSelectTheme={selectTheme}
           onImportData={importAppData}
           onResetData={resetAppData}
+          developerMode={developerMode}
+          onDeveloperModeChange={setDeveloperMode}
           onClose={() => setIsSettingsOpen(false)}
         />
       )}

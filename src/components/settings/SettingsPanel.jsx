@@ -64,9 +64,11 @@ export default function SettingsPanel({
   selectedThemeId,
   periodMode = 'recent',
   appData,
+  developerMode = false,
   onSelectTheme,
   onImportData,
   onResetData,
+  onDeveloperModeChange,
   onClose,
 }) {
   const fileInputRef = useRef(null)
@@ -219,6 +221,25 @@ export default function SettingsPanel({
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="settings-section settings-section--developer">
+          <div className="settings-section__head">
+            <span>Advanced</span>
+            <strong>Developer Mode</strong>
+          </div>
+
+          <label className="settings-toggle-row">
+            <input
+              type="checkbox"
+              checked={developerMode}
+              onChange={(event) => onDeveloperModeChange?.(event.target.checked)}
+            />
+            <span>
+              <strong>Slime Test Mode</strong>
+              <small>Enable local testing controls for slime level, XP, currencies, and evolution UI.</small>
+            </span>
+          </label>
         </section>
 
         <section className="settings-section settings-section--data">

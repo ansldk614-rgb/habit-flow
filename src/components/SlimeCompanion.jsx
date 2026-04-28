@@ -3,6 +3,7 @@ import { GitBranch } from 'lucide-react'
 import { formatCount, formatPercent, safeNumber } from '../utils/habitUtils'
 import { SLIME_FALLBACK_IMAGE } from '../constants/slimeEvolutionConstants'
 import EvolutionTreeModal from './slime/EvolutionTreeModal'
+import SlimeDebugPanel from './slime/SlimeDebugPanel'
 import {
   getEvolutionProgressInfo,
   getSlimeDisplayName,
@@ -72,7 +73,13 @@ function formatLogTime(createdAt) {
   }).format(date)
 }
 
-export default function SlimeCompanion({ rpgProfile }) {
+export default function SlimeCompanion({
+  rpgProfile,
+  developerMode = false,
+  rewardedCompletions = {},
+  onUpdateSlimeProfile,
+  onResetRewardHistory,
+}) {
   const slimeImagePath = getSlimeImagePath(rpgProfile)
   const slimeDisplayName = getSlimeDisplayName(rpgProfile)
   const evolutionProgressInfo = getEvolutionProgressInfo(rpgProfile)
@@ -210,6 +217,15 @@ export default function SlimeCompanion({ rpgProfile }) {
 
       {isEvolutionTreeOpen ? (
         <EvolutionTreeModal profile={rpgProfile} onClose={() => setIsEvolutionTreeOpen(false)} />
+      ) : null}
+
+      {developerMode ? (
+        <SlimeDebugPanel
+          slimeProfile={rpgProfile}
+          rewardedCompletions={rewardedCompletions}
+          onUpdateSlimeProfile={onUpdateSlimeProfile}
+          onResetRewardHistory={onResetRewardHistory}
+        />
       ) : null}
     </>
   )
