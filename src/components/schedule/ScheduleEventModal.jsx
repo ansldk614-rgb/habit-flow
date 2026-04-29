@@ -11,6 +11,7 @@ import {
   createDefaultScheduleEvent,
   detectScheduleConflicts,
   getCategoryMeta,
+  getScheduleLinkType,
   validateScheduleEvent,
 } from '../../utils/scheduleUtils'
 
@@ -34,7 +35,7 @@ export default function ScheduleEventModal({
 }) {
   const [form, setForm] = useState(() => createDefaultScheduleEvent(event))
   const [errors, setErrors] = useState([])
-  const linkType = form.linkType || (form.linkedHabitId ? 'habit' : form.linkedTodoId ? 'todo' : 'none')
+  const linkType = getScheduleLinkType(form)
 
   useEffect(() => {
     setForm(createDefaultScheduleEvent(event))
@@ -67,8 +68,21 @@ export default function ScheduleEventModal({
       }
 
       if (field === 'linkType') {
+        next.linkType = value
         next.linkedHabitId = null
         next.linkedTodoId = null
+      }
+
+      if (field === 'linkedHabitId') {
+        next.linkType = value ? 'habit' : 'none'
+        next.linkedHabitId = value || null
+        next.linkedTodoId = null
+      }
+
+      if (field === 'linkedTodoId') {
+        next.linkType = value ? 'todo' : 'none'
+        next.linkedTodoId = value || null
+        next.linkedHabitId = null
       }
 
       return next
@@ -98,7 +112,12 @@ export default function ScheduleEventModal({
     setErrors(nextErrors)
     if (nextErrors.length > 0) return
 
-    const { linkType: _linkType, ...scheduleEvent } = form
+    const scheduleEvent = createDefaultScheduleEvent({
+      ...form,
+      linkType,
+      linkedHabitId: linkType === 'habit' ? form.linkedHabitId : null,
+      linkedTodoId: linkType === 'todo' ? form.linkedTodoId : null,
+    })
 
     onSave({
       ...scheduleEvent,
@@ -173,7 +192,7 @@ export default function ScheduleEventModal({
               </select>
             </label>
             <label className="field">
-              <span>연결 타입</span>
+              <span>연결 대상</span>
               <select className="select-field" value={linkType} onChange={(event) => updateField('linkType', event.target.value)}>
                 <option value="none">연결 없음</option>
                 <option value="habit">습관 연결</option>
@@ -200,14 +219,14 @@ export default function ScheduleEventModal({
               <select className="select-field" value={form.linkedTodoId ?? ''} onChange={(event) => updateField('linkedTodoId', event.target.value || null)}>
                 <option value="">할 일을 선택하세요</option>
                 {todos.map((todo) => (
-                  <option key={todo.id} value={todo.id}>{todo.title}</option>
+                  <option key={todo.id} value={todo.id}>{todo.title || 'Untitled todo'}</option>
                 ))}
               </select>
             </label>
           ) : null}
 
           <p className="schedule-link-helper">
-            연결된 일정 완료를 습관 기록, XP/Gold 보상, Today Focus에 반영하는 자동화는 다음 단계에서 연결할 예정입니다.
+            연결 정보는 일정과 습관/할 일을 함께 보여주기 위한 표시용입니다. 자동 완료와 XP/Gold 보상은 아직 실행하지 않습니다.
           </p>
 
           {form.repeatType === 'custom' ? (
@@ -243,7 +262,7 @@ export default function ScheduleEventModal({
 
           <label className="field">
             <span>메모</span>
-            <textarea className="memo-input memo-input--compact" value={form.memo} onChange={(event) => updateField('memo', event.target.value)} placeholder="장소, 준비물, 목표 등을 적어두세요." />
+            <textarea className="memo-input memo-input--compact" value={form.memo} onChange={(event) => updateField('memo', event.target.value)} placeholder="장소, 준비물, 목표 등을 적어주세요." />
           </label>
 
           {errors.length > 0 ? (

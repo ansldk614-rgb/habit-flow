@@ -1,7 +1,7 @@
 import { CalendarClock, CheckCircle2, Circle, ClipboardList, Coins, Sparkles } from 'lucide-react'
 import { SCHEDULE_STORAGE_KEY } from '../../constants/scheduleConstants'
 import { formatPercent, getHabitDisplayName, getHabitEmoji, getHabitLog, getHabitMetrics, safePercent } from '../../utils/habitUtils'
-import { getScheduleEventsForWeek, getWeekDays, normalizeScheduleEvents } from '../../utils/scheduleUtils'
+import { getScheduleEventsForWeek, getScheduleLinkLabel, getWeekDays, normalizeScheduleEvents } from '../../utils/scheduleUtils'
 
 const CATEGORY_LABELS = {
   study: '공부',
@@ -39,6 +39,15 @@ function getTodoDueDate(todo) {
   return todo?.dueDate || todo?.deadline || todo?.date || ''
 }
 
+function getFirstLinkedSchedule(schedules, field, id) {
+  if (!id) return null
+  return schedules.find((schedule) => schedule[field] === id) ?? null
+}
+
+function getScheduleTimeText(schedule) {
+  return schedule ? `오늘 ${schedule.startTime} 예정` : ''
+}
+
 function StatusBadge({ done }) {
   return (
     <span className={`today-command-row__badge ${done ? 'today-command-row__badge--done' : ''}`}>
@@ -60,11 +69,17 @@ export default function TodayCommandCenter({
     const metrics = getHabitMetrics(habit, getHabitLog(completions, todayKey, habit))
     return {
       habit,
+      linkedSchedule: getFirstLinkedSchedule(todaySchedules, 'linkedHabitId', habit.id),
       percent: safePercent(metrics.progressPercent),
       isDone: metrics.progressPercent >= 100,
     }
   })
-  const todoItems = todos.filter((todo) => getTodoDueDate(todo) === todayKey)
+  const todoItems = todos
+    .filter((todo) => getTodoDueDate(todo) === todayKey)
+    .map((todo) => ({
+      ...todo,
+      linkedSchedule: getFirstLinkedSchedule(todaySchedules, 'linkedTodoId', todo.id),
+    }))
   const completedHabitCount = habitItems.filter((item) => item.isDone).length
   const completedTodoCount = todoItems.filter((todo) => todo.isCompleted).length
   const completedScheduleCount = todaySchedules.filter((event) => event.isCompleted).length
@@ -105,7 +120,7 @@ export default function TodayCommandCenter({
           <div className="today-command-list">
             {habitItems.length === 0 ? (
               <p className="today-command-empty">오늘 활성 습관이 없습니다.</p>
-            ) : habitItems.slice(0, 5).map(({ habit, percent, isDone }) => (
+            ) : habitItems.slice(0, 5).map(({ habit, linkedSchedule, percent, isDone }) => (
               <button
                 key={habit.id}
                 type="button"
@@ -116,6 +131,7 @@ export default function TodayCommandCenter({
                 <span className="today-command-row__body">
                   <strong>{getHabitDisplayName(habit)}</strong>
                   <small>{formatPercent(percent)} complete</small>
+                  {linkedSchedule ? <small className="today-command-row__link">{getScheduleTimeText(linkedSchedule)}</small> : null}
                 </span>
                 <StatusBadge done={isDone} />
               </button>
@@ -145,6 +161,7 @@ export default function TodayCommandCenter({
                 <span className="today-command-row__body">
                   <strong>{todo.title || 'Untitled todo'}</strong>
                   <small>{todo.priority || 'medium'} priority</small>
+                  {todo.linkedSchedule ? <small className="today-command-row__link">{getScheduleTimeText(todo.linkedSchedule)}</small> : null}
                 </span>
                 <StatusBadge done={todo.isCompleted} />
               </button>
@@ -161,21 +178,33 @@ export default function TodayCommandCenter({
           <div className="today-command-list">
             {todaySchedules.length === 0 ? (
               <p className="today-command-empty">오늘 시간표 일정이 없습니다.</p>
-            ) : todaySchedules.slice(0, 5).map((event) => (
-              <button
-                key={event.occurrenceId ?? event.id}
-                type="button"
-                className="today-command-row today-command-row--button"
-                onClick={() => onNavigate?.('weeklyPlanner')}
-              >
-                <span className="today-command-row__icon today-command-row__icon--schedule" aria-hidden="true" />
-                <span className="today-command-row__body">
-                  <strong>{event.title || 'Untitled schedule'}</strong>
-                  <small>{event.startTime} - {event.endTime} · {CATEGORY_LABELS[event.category] ?? event.category ?? '일정'}</small>
-                </span>
-                <span className="today-command-row__badge today-command-row__badge--time">{event.startTime}</span>
-              </button>
-            ))}
+            ) : todaySchedules.slice(0, 5).map((event) => {
+              const link = getScheduleLinkLabel(event, habits, todos)
+              const linkedName = link.name || (link.isMissing ? '삭제된 항목' : '')
+
+              return (
+                <button
+                  key={event.occurrenceId ?? event.id}
+                  type="button"
+                  className="today-command-row today-command-row--button"
+                  onClick={() => onNavigate?.('weeklyPlanner')}
+                >
+                  <span className="today-command-row__icon today-command-row__icon--schedule" aria-hidden="true" />
+                  <span className="today-command-row__body">
+                    <strong>{event.title || 'Untitled schedule'}</strong>
+                    <small>{event.startTime} - {event.endTime} · {CATEGORY_LABELS[event.category] ?? event.category ?? '일정'}</small>
+                    {link.type !== 'none' ? (
+                      <small className="today-command-row__link">
+                        {link.type === 'habit' ? '습관' : '할 일'}: {linkedName || '연결된 항목'}
+                      </small>
+                    ) : null}
+                  </span>
+                  <span className={`today-command-row__badge today-command-row__badge--time ${link.type !== 'none' ? 'today-command-row__badge--linked' : ''}`}>
+                    {link.type === 'none' ? event.startTime : link.badge}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </section>
       </div>

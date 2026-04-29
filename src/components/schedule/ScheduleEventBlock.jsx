@@ -1,13 +1,11 @@
 import { StickyNote } from 'lucide-react'
-import { getHabitDisplayName } from '../../utils/habitUtils'
-import { getCategoryMeta, getRepeatLabel } from '../../utils/scheduleUtils'
+import { getCategoryMeta, getRepeatLabel, getScheduleLinkLabel } from '../../utils/scheduleUtils'
 
 export default function ScheduleEventBlock({ event, style, habits = [], todos = [], isConflict = false, onClick }) {
   const category = getCategoryMeta(event.category)
   const repeatLabel = getRepeatLabel(event.repeatType)
-  const linkedHabit = event.linkedHabitId ? habits.find((habit) => habit.id === event.linkedHabitId) : null
-  const linkedTodo = event.linkedTodoId ? todos.find((todo) => todo.id === event.linkedTodoId) : null
-  const linkLabel = linkedHabit ? `습관 · ${getHabitDisplayName(linkedHabit)}` : linkedTodo ? `할 일 · ${linkedTodo.title}` : ''
+  const link = getScheduleLinkLabel(event, habits, todos)
+  const linkName = link.name || (link.isMissing ? '삭제된 항목' : '')
 
   return (
     <button
@@ -26,7 +24,11 @@ export default function ScheduleEventBlock({ event, style, habits = [], todos = 
         {category.label}
         {event.memo ? <StickyNote size={11} aria-label="메모 있음" /> : null}
       </em>
-      {linkLabel ? <small className="weekly-schedule-block__link">{linkLabel}</small> : null}
+      {link.type !== 'none' ? (
+        <small className={`weekly-schedule-block__link weekly-schedule-block__link--${link.type}`}>
+          {link.badge}{linkName ? ` · ${linkName}` : ''}
+        </small>
+      ) : null}
       {repeatLabel ? <small className="weekly-schedule-block__repeat">{repeatLabel}</small> : null}
     </button>
   )

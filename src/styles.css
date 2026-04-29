@@ -5946,6 +5946,10 @@ button,
   font-weight: 720;
 }
 
+.today-command-row__link {
+  color: var(--color-accent) !important;
+}
+
 .today-command-row__badge {
   display: inline-flex;
   align-items: center;
@@ -5970,6 +5974,13 @@ button,
 .today-command-row__badge--time {
   min-width: 44px;
   color: var(--color-text);
+}
+
+.today-command-row__badge--linked {
+  min-width: 58px;
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent-soft) 54%, var(--color-surface));
+  color: var(--color-accent);
 }
 
 .today-command-empty {
@@ -8404,6 +8415,11 @@ body {
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.weekly-schedule-block__link--todo {
+  border-color: color-mix(in srgb, var(--color-warning) 34%, var(--color-border));
+  background: color-mix(in srgb, var(--color-warning) 16%, var(--color-surface));
 }
 
 .weekly-schedule-block:hover {

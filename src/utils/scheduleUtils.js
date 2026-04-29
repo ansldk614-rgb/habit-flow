@@ -34,6 +34,12 @@ function isDateKey(value) {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
 }
 
+function normalizeLinkType(partial) {
+  if (partial?.linkType === 'habit' || partial?.linkedHabitId) return 'habit'
+  if (partial?.linkType === 'todo' || partial?.linkedTodoId) return 'todo'
+  return 'none'
+}
+
 export function getCategoryMeta(category) {
   return SCHEDULE_CATEGORIES[category] ?? SCHEDULE_CATEGORIES[DEFAULT_SCHEDULE_CATEGORY]
 }
@@ -65,6 +71,7 @@ export function createDefaultScheduleEvent(partial = {}) {
   const dayOfWeek = ensureValidDayOfWeek(partial.dayOfWeek, new Date().getDay())
   const category = getCategoryMeta(partial.category)?.id ?? DEFAULT_SCHEDULE_CATEGORY
   const dateKey = isDateKey(partial.dateKey) ? partial.dateKey : getDateKey()
+  const linkType = normalizeLinkType(partial)
 
   return {
     id: String(partial.id || createScheduleId()),
@@ -78,8 +85,9 @@ export function createDefaultScheduleEvent(partial = {}) {
     memo: String(partial.memo || ''),
     repeatType: SCHEDULE_REPEAT_TYPES.includes(partial.repeatType) ? partial.repeatType : 'none',
     repeatDays: ensureRepeatDays(partial.repeatDays, dayOfWeek),
-    linkedHabitId: partial.linkedHabitId ? String(partial.linkedHabitId) : null,
-    linkedTodoId: partial.linkedTodoId ? String(partial.linkedTodoId) : null,
+    linkType,
+    linkedHabitId: linkType === 'habit' && partial.linkedHabitId ? String(partial.linkedHabitId) : null,
+    linkedTodoId: linkType === 'todo' && partial.linkedTodoId ? String(partial.linkedTodoId) : null,
     isCompleted: Boolean(partial.isCompleted),
     createdAt: String(partial.createdAt || now),
     updatedAt: String(partial.updatedAt || partial.createdAt || now),
@@ -114,6 +122,36 @@ export function getRepeatLabel(repeatType) {
     default:
       return ''
   }
+}
+
+export function getScheduleLinkType(event) {
+  return normalizeLinkType(event)
+}
+
+export function getScheduleLinkLabel(event, habits = [], todos = []) {
+  const linkType = getScheduleLinkType(event)
+
+  if (linkType === 'habit') {
+    const linkedHabit = habits.find((habit) => habit.id === event.linkedHabitId)
+    return {
+      type: 'habit',
+      badge: '습관 연결',
+      name: linkedHabit?.name || linkedHabit?.title || linkedHabit?.label || '',
+      isMissing: Boolean(event.linkedHabitId && !linkedHabit),
+    }
+  }
+
+  if (linkType === 'todo') {
+    const linkedTodo = todos.find((todo) => todo.id === event.linkedTodoId)
+    return {
+      type: 'todo',
+      badge: '할 일 연결',
+      name: linkedTodo?.title || '',
+      isMissing: Boolean(event.linkedTodoId && !linkedTodo),
+    }
+  }
+
+  return { type: 'none', badge: '', name: '', isMissing: false }
 }
 
 export function getRepeatDaysForEvent(event) {
