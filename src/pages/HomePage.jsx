@@ -4,6 +4,7 @@ import DailyHabitsGrid from '../components/dashboard/DailyHabitsGrid'
 import LeftControlPanel from '../components/dashboard/LeftControlPanel'
 import MonthlyOverviewGrid from '../components/dashboard/MonthlyOverviewGrid'
 import RightStatsPanel from '../components/dashboard/RightStatsPanel'
+import TodayCommandCenter from '../components/dashboard/TodayCommandCenter'
 import {
   calculateMonthlyProgress,
   getDailyChartData,
@@ -37,6 +38,7 @@ export default function HomePage({
   periodMode = 'recent',
   onPeriodModeChange,
   onSelectDate,
+  onNavigate,
   onToggleHabitDate,
   onUpdateHabitLog,
   onEditHabit,
@@ -87,6 +89,14 @@ export default function HomePage({
       leftPanel={<LeftControlPanel today={today} periodMode={periodMode} periodLabel={periodLabel} periodProgress={periodProgress} totalLabel={totalLabel} todaySummary={todaySummary} habits={habits} completions={completions} todayKey={todayKey} onPeriodModeChange={onPeriodModeChange} onToggleHabitDate={onToggleHabitDate} onAddHabit={onAddHabit} />}
       mainPanel={(
         <>
+          <TodayCommandCenter
+            today={today}
+            todayKey={todayKey}
+            habits={todayHabits}
+            completions={completions}
+            todos={todayTodos}
+            onNavigate={onNavigate}
+          />
           <DailyCompletionChart chartData={chartData} caption={chartCaption} />
           <MonthlyOverviewGrid
             title={periodTitle}

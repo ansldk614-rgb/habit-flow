@@ -3,6 +3,8 @@ import { CalendarDays, ClipboardList, Home, ListChecks, Settings, Smile, Sparkle
 import { COLOR_OPTIONS, QUICK_HABITS, TABS } from './constants/habitConstants'
 import { applyTheme, getStoredThemeId, getThemeById, saveThemeId } from './constants/themeConstants'
 import { useAuth } from './contexts/AuthContext'
+import AccountButton from './components/auth/AccountButton'
+import AuthModal from './components/auth/AuthModal'
 import HabitModal from './components/modals/HabitModal'
 import WeekDetailModal from './components/modals/WeekDetailModal'
 import SettingsPanel from './components/settings/SettingsPanel'
@@ -103,6 +105,7 @@ function App() {
   const [habitModal, setHabitModal] = useState({ isOpen: false, mode: 'add', habit: null })
   const [weekDetailModal, setWeekDetailModal] = useState({ isOpen: false, week: null })
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [authModalMode, setAuthModalMode] = useState(null)
   const [cloudHabits, setCloudHabits] = useState([])
   const [habitsLoading, setHabitsLoading] = useState(false)
   const [habitsError, setHabitsError] = useState('')
@@ -669,15 +672,18 @@ function App() {
             <p className="hero-date">{formatHeroDate(today)}</p>
           </div>
 
-          <button
-            type="button"
-            className="settings-button"
-            onClick={() => setIsSettingsOpen(true)}
-            aria-label="Open settings"
-            title="Settings"
-          >
-            <Settings size={18} />
-          </button>
+          <div className="hero-actions">
+            <AccountButton onOpenAuth={setAuthModalMode} />
+            <button
+              type="button"
+              className="settings-button"
+              onClick={() => setIsSettingsOpen(true)}
+              aria-label="Open settings"
+              title="Settings"
+            >
+              <Settings size={18} />
+            </button>
+          </div>
         </div>
 
         <div className="tabs-bar" role="tablist" aria-label="메인 탭">
@@ -696,7 +702,7 @@ function App() {
       )}
 
       {activeTab === 'home' && (
-        <HomePage habits={activeHabits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onUpdateHabitLog={updateHabitLog} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
+        <HomePage habits={activeHabits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onNavigate={setActiveTab} onToggleHabitDate={toggleDashboardHabitDate} onUpdateHabitLog={updateHabitLog} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
       )}
 
       {activeTab === 'calendar' && (
@@ -762,6 +768,10 @@ function App() {
           onClose={() => setIsSettingsOpen(false)}
         />
       )}
+
+      {authModalMode ? (
+        <AuthModal initialMode={authModalMode} onClose={() => setAuthModalMode(null)} />
+      ) : null}
 
       <nav className="mobile-bottom-nav" aria-label="Mobile primary navigation">
         {MOBILE_NAV_ITEMS.map((item) => {

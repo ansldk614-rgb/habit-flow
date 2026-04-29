@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Download, RotateCcw, Upload, X } from 'lucide-react'
-import AuthModal from '../auth/AuthModal'
-import UserMenu from '../auth/UserMenu'
 import DataSyncPanel from './DataSyncPanel'
 import { THEMES } from '../../constants/themeConstants'
 
@@ -77,7 +75,6 @@ export default function SettingsPanel({
   const fileInputRef = useRef(null)
   const [dataMessage, setDataMessage] = useState('')
   const [dataError, setDataError] = useState('')
-  const [authModalMode, setAuthModalMode] = useState(null)
   const darkThemes = THEMES.filter((theme) => !LIGHT_THEME_IDS.has(theme.id))
   const lightThemes = THEMES.filter((theme) => LIGHT_THEME_IDS.has(theme.id))
   const themeGroups = [
@@ -205,10 +202,12 @@ export default function SettingsPanel({
         <section className="settings-section settings-section--account">
           <div className="settings-section__head">
             <span>Account</span>
-            <strong>Cloud Sync Prep</strong>
+            <strong>Cloud Sync</strong>
           </div>
 
-          <UserMenu onOpenAuth={(mode) => setAuthModalMode(mode)} />
+          <p className="settings-help-text">
+            Use the account button next to Settings to log in, manage your session, or log out. Data sync tools remain here.
+          </p>
         </section>
 
         <DataSyncPanel appData={appData} />
@@ -286,10 +285,6 @@ export default function SettingsPanel({
           {dataError ? <p className="settings-status settings-status--error">{dataError}</p> : null}
           {dataMessage ? <p className="settings-status">{dataMessage}</p> : null}
         </section>
-
-        {authModalMode ? (
-          <AuthModal initialMode={authModalMode} onClose={() => setAuthModalMode(null)} />
-        ) : null}
       </aside>
     </div>
   )
