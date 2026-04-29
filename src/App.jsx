@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CalendarDays, ClipboardList, Home, ListChecks, Settings, Smile, Sparkles } from 'lucide-react'
 import { COLOR_OPTIONS, QUICK_HABITS, TABS } from './constants/habitConstants'
 import { applyTheme, getStoredThemeId, getThemeById, saveThemeId } from './constants/themeConstants'
+import { useAuth } from './contexts/AuthContext'
 import HabitModal from './components/modals/HabitModal'
 import WeekDetailModal from './components/modals/WeekDetailModal'
 import SettingsPanel from './components/settings/SettingsPanel'
@@ -27,6 +28,7 @@ import {
 import { countEventsByDate, createDefaultEvent, getTodayEvents, normalizeEvent } from './utils/eventUtils'
 import { applyHabitReward, calculateRpgProfile } from './utils/rpgUtils'
 import { countTodosByDate, createDefaultTodo, getTodayTodos, normalizeTodo } from './utils/todoUtils'
+import { deleteHabit as deleteCloudHabit, getUserHabits, upsertHabit } from './services/habitService'
 
 const PERIOD_MODE_STORAGE_KEY = 'habit-flow-period-mode'
 const DEVELOPER_MODE_STORAGE_KEY = 'habitFlowDeveloperMode'
@@ -83,6 +85,7 @@ function createInitialHabitForm() {
 }
 
 function App() {
+  const { user, isAuthenticated } = useAuth()
   const [{ version, habits, completions, events, schedules, todos, companion, rewardedCompletions, settings }, setState] = useLocalStorage()
   const [activeTab, setActiveTab] = useState('home')
   const [periodMode, setPeriodMode] = useState(getStoredPeriodMode)
@@ -100,17 +103,21 @@ function App() {
   const [habitModal, setHabitModal] = useState({ isOpen: false, mode: 'add', habit: null })
   const [weekDetailModal, setWeekDetailModal] = useState({ isOpen: false, week: null })
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [cloudHabits, setCloudHabits] = useState([])
+  const [habitsLoading, setHabitsLoading] = useState(false)
+  const [habitsError, setHabitsError] = useState('')
 
   const today = new Date()
   const todayKey = getDateKey(today)
   const selectedDate = parseDateKey(selectedDateKey)
-  const calendarDays = buildCalendarDays(calendarAnchorDate, habits, completions, todayKey, selectedDateKey)
-  const selectedHabits = habits.filter((habit) => isHabitScheduledForDate(habit, selectedDateKey) || completions[selectedDateKey]?.[habit.id])
-  const todayHabits = habits.filter((habit) => isHabitScheduledForDate(habit, todayKey) || completions[todayKey]?.[habit.id])
-  const todayRate = calculateDayRate(habits, completions, todayKey)
-  const weeklyRate = calculateOverallWeeklyRate(habits, completions, today)
+  const activeHabits = isAuthenticated ? cloudHabits : habits
+  const calendarDays = buildCalendarDays(calendarAnchorDate, activeHabits, completions, todayKey, selectedDateKey)
+  const selectedHabits = activeHabits.filter((habit) => isHabitScheduledForDate(habit, selectedDateKey) || completions[selectedDateKey]?.[habit.id])
+  const todayHabits = activeHabits.filter((habit) => isHabitScheduledForDate(habit, todayKey) || completions[todayKey]?.[habit.id])
+  const todayRate = calculateDayRate(activeHabits, completions, todayKey)
+  const weeklyRate = calculateOverallWeeklyRate(activeHabits, completions, today)
   const matrixDates = enumeratePastDates(35, today).reverse()
-  const rpgProfile = calculateRpgProfile(habits, completions, todayKey, weeklyRate, companion)
+  const rpgProfile = calculateRpgProfile(activeHabits, completions, todayKey, weeklyRate, companion)
   const eventCountsByDate = countEventsByDate(events)
   const todoCountsByDate = countTodosByDate(todos)
   const todayEvents = getTodayEvents(events, todayKey)
@@ -120,6 +127,40 @@ function App() {
   useEffect(() => {
     applyTheme(selectedTheme)
   }, [selectedTheme])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadCloudHabits() {
+      if (!isAuthenticated || !user?.id) {
+        setCloudHabits([])
+        setHabitsLoading(false)
+        setHabitsError('')
+        return
+      }
+
+      setHabitsLoading(true)
+      setHabitsError('')
+
+      const result = await getUserHabits(user.id)
+      if (!isMounted) return
+
+      if (result.error) {
+        setHabitsError(result.error.message || 'Could not load cloud habits.')
+        setCloudHabits([])
+      } else {
+        setCloudHabits(result.data ?? [])
+      }
+
+      setHabitsLoading(false)
+    }
+
+    loadCloudHabits()
+
+    return () => {
+      isMounted = false
+    }
+  }, [isAuthenticated, user?.id])
 
   useEffect(() => {
     window.localStorage.setItem(PERIOD_MODE_STORAGE_KEY, PERIOD_MODES.has(periodMode) ? periodMode : 'recent')
@@ -295,7 +336,24 @@ function App() {
     }
   }
 
-  function handleCreateHabit(event) {
+  async function saveHabitByAuth(nextHabit) {
+    if (!isAuthenticated || !user?.id) {
+      setState((current) => ({ ...current, habits: [nextHabit, ...current.habits] }))
+      return true
+    }
+
+    setHabitsError('')
+    const result = await upsertHabit(user.id, nextHabit)
+    if (result.error) {
+      setHabitsError(result.error.message || 'Could not save cloud habit.')
+      return false
+    }
+
+    setCloudHabits((current) => [result.data, ...current.filter((habit) => habit.id !== result.data.id)])
+    return true
+  }
+
+  async function handleCreateHabit(event) {
     event.preventDefault()
     const errors = validateHabitForm()
     setHabitErrors(errors)
@@ -315,11 +373,11 @@ function App() {
       createdAt: new Date().toISOString(),
     }
 
-    setState((current) => ({ ...current, habits: [nextHabit, ...current.habits] }))
-    resetHabitForm()
+    const saved = await saveHabitByAuth(nextHabit)
+    if (saved) resetHabitForm()
   }
 
-  function addQuickHabit(template) {
+  async function addQuickHabit(template) {
     const settings = quickSettings[template.id] ?? template.defaults
     const subject = String(settings.subject ?? '').trim()
     const targetMinutes = Math.max(1, safeNumber(settings.targetMinutes, template.defaults.targetMinutes ?? 30))
@@ -343,7 +401,7 @@ function App() {
       createdAt: new Date().toISOString(),
     }
 
-    setState((current) => ({ ...current, habits: [nextHabit, ...current.habits] }))
+    await saveHabitByAuth(nextHabit)
   }
 
   function updateHabitLog(habit, dateKey, patch) {
@@ -422,8 +480,40 @@ function App() {
     }
   }
 
-  function saveDashboardHabit(values) {
+  async function saveDashboardHabit(values) {
     const now = new Date().toISOString()
+
+    if (isAuthenticated && user?.id) {
+      const baseHabit = habitModal.mode === 'edit' && habitModal.habit?.id
+        ? habitModal.habit
+        : null
+      const nextHabit = {
+        ...(baseHabit ?? {}),
+        id: baseHabit?.id,
+        ...values,
+        days: values.activeDays ?? values.days ?? baseHabit?.days ?? [1, 2, 3, 4, 5],
+        activeDays: values.activeDays ?? values.days ?? baseHabit?.activeDays ?? baseHabit?.days ?? [1, 2, 3, 4, 5],
+        goal: values.goal ?? values.monthlyGoal ?? baseHabit?.goal ?? baseHabit?.monthlyGoal ?? 20,
+        monthlyGoal: values.goal ?? values.monthlyGoal ?? baseHabit?.goal ?? baseHabit?.monthlyGoal ?? 20,
+        target: values.target ?? (baseHabit?.type === values.type ? baseHabit?.target : createTargetForDashboardHabit(values.type)),
+        createdAt: baseHabit?.createdAt ?? now,
+        updatedAt: now,
+      }
+
+      setHabitsError('')
+      const result = await upsertHabit(user.id, nextHabit)
+      if (result.error) {
+        setHabitsError(result.error.message || 'Could not save cloud habit.')
+        return
+      }
+
+      setCloudHabits((current) => {
+        const withoutSaved = current.filter((habit) => habit.id !== result.data.id)
+        return habitModal.mode === 'edit' ? [result.data, ...withoutSaved] : [result.data, ...withoutSaved]
+      })
+      closeHabitModal()
+      return
+    }
 
     setState((current) => {
       if (habitModal.mode === 'edit' && habitModal.habit?.id) {
@@ -466,7 +556,19 @@ function App() {
     closeHabitModal()
   }
 
-  function deleteHabit(habitId) {
+  async function deleteHabit(habitId) {
+    if (isAuthenticated && user?.id) {
+      setHabitsError('')
+      const result = await deleteCloudHabit(user.id, habitId)
+      if (result.error) {
+        setHabitsError(result.error.message || 'Could not delete cloud habit.')
+        return
+      }
+
+      setCloudHabits((current) => current.filter((habit) => habit.id !== habitId))
+      return
+    }
+
     setState((current) => {
       const nextCompletions = Object.fromEntries(
         Object.entries(current.completions).map(([dateKey, entries]) => {
@@ -587,8 +689,14 @@ function App() {
         </div>
       </section>
 
+      {(habitsLoading || habitsError) && (
+        <section className={`cloud-habits-status ${habitsError ? 'cloud-habits-status--error' : ''}`}>
+          {habitsLoading ? 'Loading cloud habits...' : habitsError}
+        </section>
+      )}
+
       {activeTab === 'home' && (
-        <HomePage habits={habits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onUpdateHabitLog={updateHabitLog} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
+        <HomePage habits={activeHabits} completions={completions} todayKey={todayKey} todayRate={todayRate} todayHabits={todayHabits} today={today} todayEvents={todayEvents} todayTodos={todayTodos} rpgProfile={rpgProfile} selectedDateKey={selectedDateKey} periodMode={periodMode} onPeriodModeChange={setPeriodMode} onSelectDate={setSelectedDateKey} onToggleHabitDate={toggleDashboardHabitDate} onUpdateHabitLog={updateHabitLog} onAddHabit={openAddHabitModal} onEditHabit={openEditHabitModal} onOpenWeekDetail={openDashboardWeekDetail} />
       )}
 
       {activeTab === 'calendar' && (
@@ -596,7 +704,7 @@ function App() {
       )}
 
       {activeTab === 'weeklyPlanner' && (
-        <WeeklyPlannerPage schedules={schedules} habits={habits} todos={todos} />
+        <WeeklyPlannerPage schedules={schedules} habits={activeHabits} todos={todos} />
       )}
 
       {activeTab === 'todos' && (
@@ -604,11 +712,11 @@ function App() {
       )}
 
       {activeTab === 'habits' && (
-        <HabitsPage habits={habits} form={habitForm} habitErrors={habitErrors} quickSettings={quickSettings} updateFormField={updateHabitFormField} updateQuickSetting={updateQuickSetting} toggleQuickActiveDay={toggleQuickActiveDay} toggleDay={toggleDay} handleCreateHabit={handleCreateHabit} resetHabitForm={resetHabitForm} addQuickHabit={addQuickHabit} deleteHabit={deleteHabit} onEditHabit={openEditHabitModal} />
+        <HabitsPage habits={activeHabits} form={habitForm} habitErrors={habitErrors} quickSettings={quickSettings} updateFormField={updateHabitFormField} updateQuickSetting={updateQuickSetting} toggleQuickActiveDay={toggleQuickActiveDay} toggleDay={toggleDay} handleCreateHabit={handleCreateHabit} resetHabitForm={resetHabitForm} addQuickHabit={addQuickHabit} deleteHabit={deleteHabit} onEditHabit={openEditHabitModal} />
       )}
 
       {activeTab === 'records' && (
-        <RecordsPage habits={habits} completions={completions} selectedDateKey={selectedDateKey} selectedDate={selectedDate} selectedHabits={selectedHabits} todayKey={todayKey} today={today} matrixDates={matrixDates} updateHabitLog={updateHabitLog} deleteHabit={deleteHabit} />
+        <RecordsPage habits={activeHabits} completions={completions} selectedDateKey={selectedDateKey} selectedDate={selectedDate} selectedHabits={selectedHabits} todayKey={todayKey} today={today} matrixDates={matrixDates} updateHabitLog={updateHabitLog} deleteHabit={deleteHabit} />
       )}
 
       {activeTab === 'companion' && (
@@ -633,7 +741,7 @@ function App() {
       {weekDetailModal.isOpen && (
         <WeekDetailModal
           week={weekDetailModal.week}
-          habits={habits}
+          habits={activeHabits}
           completions={completions}
           todayKey={todayKey}
           onClose={closeWeekDetailModal}

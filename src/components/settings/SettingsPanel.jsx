@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Download, RotateCcw, Upload, X } from 'lucide-react'
+import AuthModal from '../auth/AuthModal'
+import UserMenu from '../auth/UserMenu'
+import DataSyncPanel from './DataSyncPanel'
 import { THEMES } from '../../constants/themeConstants'
 
 const BACKUP_VERSION = 1
@@ -74,6 +77,7 @@ export default function SettingsPanel({
   const fileInputRef = useRef(null)
   const [dataMessage, setDataMessage] = useState('')
   const [dataError, setDataError] = useState('')
+  const [authModalMode, setAuthModalMode] = useState(null)
   const darkThemes = THEMES.filter((theme) => !LIGHT_THEME_IDS.has(theme.id))
   const lightThemes = THEMES.filter((theme) => LIGHT_THEME_IDS.has(theme.id))
   const themeGroups = [
@@ -198,6 +202,17 @@ export default function SettingsPanel({
           </button>
         </header>
 
+        <section className="settings-section settings-section--account">
+          <div className="settings-section__head">
+            <span>Account</span>
+            <strong>Cloud Sync Prep</strong>
+          </div>
+
+          <UserMenu onOpenAuth={(mode) => setAuthModalMode(mode)} />
+        </section>
+
+        <DataSyncPanel appData={appData} />
+
         <section className="settings-section">
           <div className="settings-section__head">
             <span>Appearance</span>
@@ -271,6 +286,10 @@ export default function SettingsPanel({
           {dataError ? <p className="settings-status settings-status--error">{dataError}</p> : null}
           {dataMessage ? <p className="settings-status">{dataMessage}</p> : null}
         </section>
+
+        {authModalMode ? (
+          <AuthModal initialMode={authModalMode} onClose={() => setAuthModalMode(null)} />
+        ) : null}
       </aside>
     </div>
   )
