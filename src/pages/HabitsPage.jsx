@@ -6,11 +6,39 @@ import { getHabitDisplayName, getHabitEmoji, getHabitGoalLabel, getHabitMonthlyG
 
 export default function HabitsPage({ habits, form, habitErrors, quickSettings, updateFormField, updateQuickSetting, toggleQuickActiveDay, toggleDay, handleCreateHabit, resetHabitForm, addQuickHabit, deleteHabit, onEditHabit }) {
   const [isHabitFormOpen, setIsHabitFormOpen] = useState(false)
+  const [manageFilters, setManageFilters] = useState({
+    query: '',
+    category: 'all',
+    day: 'all',
+    sort: 'updated-desc',
+  })
+  const habitCategories = getHabitCategories(habits)
+  const filteredHabits = filterAndSortHabits(habits, manageFilters)
+  const hasActiveFilters = manageFilters.query || manageFilters.category !== 'all' || manageFilters.day !== 'all' || manageFilters.sort !== 'updated-desc'
+
+  function updateManageFilter(field, value) {
+    setManageFilters((current) => ({ ...current, [field]: value }))
+  }
+
+  function resetManageFilters() {
+    setManageFilters({
+      query: '',
+      category: 'all',
+      day: 'all',
+      sort: 'updated-desc',
+    })
+  }
 
   return (
     <>
       <section className="panel quick-habits-panel">
-        <div className="section-header"><div><p className="section-kicker">빠른 추가</p><h2>자주 쓰는 습관</h2></div><Plus size={18} /></div>
+        <div className="section-header">
+          <div>
+            <p className="section-kicker">빠른 추가</p>
+            <h2>자주 쓰는 습관</h2>
+          </div>
+          <Plus size={18} />
+        </div>
         <div className="quick-habit-grid">
           {QUICK_HABITS.map((habit) => {
             const settings = quickSettings[habit.id] ?? habit.defaults
@@ -45,7 +73,7 @@ export default function HabitsPage({ habits, form, habitErrors, quickSettings, u
           <div>
             <p className="section-kicker">직접 추가</p>
             <h2>새 습관 만들기</h2>
-            <p className="compact-helper habit-create-panel__hint">필요할 때만 열어서 세부 습관을 직접 설정하세요.</p>
+            <p className="compact-helper habit-create-panel__hint">필요한 값만 입력해서 나만의 습관을 직접 설정하세요.</p>
           </div>
           <button type="button" className="compact-toggle-button" onClick={() => setIsHabitFormOpen((current) => !current)} aria-expanded={isHabitFormOpen}>
             {isHabitFormOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -56,9 +84,65 @@ export default function HabitsPage({ habits, form, habitErrors, quickSettings, u
       </section>
 
       <section className="panel">
-        <div className="section-header"><div><p className="section-kicker">수정</p><h2>등록된 습관 관리</h2></div><ClipboardList size={18} /></div>
+        <div className="section-header">
+          <div>
+            <p className="section-kicker">수정</p>
+            <h2>등록된 습관 관리</h2>
+          </div>
+          <ClipboardList size={18} />
+        </div>
+
+        <div className="manage-filter-bar" aria-label="등록된 습관 검색과 필터">
+          <label className="manage-filter-field manage-filter-field--search">
+            <span>검색</span>
+            <input
+              type="search"
+              value={manageFilters.query}
+              onChange={(event) => updateManageFilter('query', event.target.value)}
+              placeholder="습관명, 카테고리, 메모 검색"
+            />
+          </label>
+
+          <label className="manage-filter-field">
+            <span>카테고리</span>
+            <select value={manageFilters.category} onChange={(event) => updateManageFilter('category', event.target.value)}>
+              <option value="all">전체</option>
+              {habitCategories.map((category) => (
+                <option key={category} value={category}>{getCategoryLabel(category)}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="manage-filter-field">
+            <span>요일</span>
+            <select value={manageFilters.day} onChange={(event) => updateManageFilter('day', event.target.value)}>
+              <option value="all">전체</option>
+              {WEEKDAY_OPTIONS.map((day) => (
+                <option key={day.value} value={day.value}>{day.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="manage-filter-field">
+            <span>정렬</span>
+            <select value={manageFilters.sort} onChange={(event) => updateManageFilter('sort', event.target.value)}>
+              <option value="updated-desc">최근 수정순</option>
+              <option value="name-asc">이름순</option>
+              <option value="goal-desc">월간 목표 높은 순</option>
+              <option value="goal-asc">월간 목표 낮은 순</option>
+              <option value="category-asc">카테고리순</option>
+            </select>
+          </label>
+
+          <button type="button" className="manage-filter-reset" onClick={resetManageFilters} disabled={!hasActiveFilters}>
+            초기화
+          </button>
+        </div>
+
+        <p className="manage-filter-summary">총 {habits.length}개 중 {filteredHabits.length}개 표시</p>
+
         <div className="manage-list">
-          {habits.length === 0 ? <div className="empty-card"><p>아직 등록된 습관이 없어요.</p><span>빠른 추가나 직접 추가로 먼저 습관을 만들어 보세요.</span></div> : habits.map((habit) => (
+          {habits.length === 0 ? <div className="empty-card"><p>아직 등록된 습관이 없어요.</p><span>빠른 추가나 직접 추가로 먼저 습관을 만들어 보세요.</span></div> : filteredHabits.length === 0 ? <div className="empty-card"><p>조건에 맞는 습관이 없습니다.</p><span>검색어나 필터를 초기화해 보세요.</span></div> : filteredHabits.map((habit) => (
             <article key={habit.id} className="manage-row manage-row--clickable" role="button" tabIndex={0} onClick={() => onEditHabit?.(habit)} onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') onEditHabit?.(habit)
             }}>
@@ -74,4 +158,68 @@ export default function HabitsPage({ habits, form, habitErrors, quickSettings, u
       </section>
     </>
   )
+}
+
+function getCategoryKey(habit) {
+  return String(habit?.category || habit?.type || '기타').trim() || '기타'
+}
+
+function getCategoryLabel(category) {
+  const matchedType = HABIT_TYPES.find((type) => type.value === category)
+  return matchedType?.label ?? category
+}
+
+function getHabitActiveDays(habit) {
+  const days = Array.isArray(habit?.activeDays) ? habit.activeDays : habit?.days
+  return Array.isArray(days) && days.length > 0 ? days.map(Number) : [1, 2, 3, 4, 5]
+}
+
+function getHabitCategories(habits) {
+  return [...new Set(habits.map(getCategoryKey))]
+    .sort((left, right) => getCategoryLabel(left).localeCompare(getCategoryLabel(right), 'ko'))
+}
+
+function getHabitSearchText(habit) {
+  return [
+    getHabitDisplayName(habit),
+    getCategoryKey(habit),
+    getCategoryLabel(getCategoryKey(habit)),
+    habit?.memo,
+    habit?.description,
+  ].filter(Boolean).join(' ').toLowerCase()
+}
+
+function getHabitUpdatedTime(habit) {
+  const timestamp = Date.parse(habit?.updatedAt || habit?.createdAt || '')
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+function filterAndSortHabits(habits, filters) {
+  const query = filters.query.trim().toLowerCase()
+  const selectedDay = filters.day === 'all' ? null : Number(filters.day)
+
+  return habits
+    .filter((habit) => {
+      if (query && !getHabitSearchText(habit).includes(query)) return false
+      if (filters.category !== 'all' && getCategoryKey(habit) !== filters.category) return false
+      if (selectedDay !== null && !getHabitActiveDays(habit).includes(selectedDay)) return false
+      return true
+    })
+    .sort((left, right) => {
+      switch (filters.sort) {
+        case 'name-asc':
+          return getHabitDisplayName(left).localeCompare(getHabitDisplayName(right), 'ko')
+        case 'goal-desc':
+          return safeNumber(right.goal ?? right.monthlyGoal, 0) - safeNumber(left.goal ?? left.monthlyGoal, 0)
+        case 'goal-asc':
+          return safeNumber(left.goal ?? left.monthlyGoal, 0) - safeNumber(right.goal ?? right.monthlyGoal, 0)
+        case 'category-asc': {
+          const categoryCompare = getCategoryLabel(getCategoryKey(left)).localeCompare(getCategoryLabel(getCategoryKey(right)), 'ko')
+          return categoryCompare || getHabitDisplayName(left).localeCompare(getHabitDisplayName(right), 'ko')
+        }
+        case 'updated-desc':
+        default:
+          return getHabitUpdatedTime(right) - getHabitUpdatedTime(left)
+      }
+    })
 }
